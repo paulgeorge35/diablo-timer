@@ -24,7 +24,7 @@ export default function Notifications() {
     return <>
         <button type="button" onClick={handleSubscribe} className="flex items-center gap-2 ml-auto p-4 bg-muted/10">
             <Bell className="size-4" />
-            Enable Notifications
+            <span className="hidden md:block">Enable Notifications</span>
         </button>
     </>
 }
