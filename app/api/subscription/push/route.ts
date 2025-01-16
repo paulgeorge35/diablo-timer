@@ -10,7 +10,7 @@ const WORLD_EVENT_INTERVAL = 1000 * 60 * 60 * 3.5; // 3.5 hours
 
 const vapidKeys = {
 	publicKey: env.NEXT_PUBLIC_PUBLIC_KEY,
-	privateKey: env.NEXT_PUBLIC_PRIVATE_KEY,
+	privateKey: env.PRIVATE_KEY,
 };
 
 webpush.setVapidDetails(
