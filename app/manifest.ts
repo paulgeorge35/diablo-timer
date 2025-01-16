@@ -5,8 +5,34 @@ export default function manifest(): MetadataRoute.Manifest {
 		name: "World Boss Countdown",
 		short_name: "World Boss Countdown",
 		description: "Countdown to the next World Boss event",
-		start_url: "https://diablo-timer.paulgeorge.dev",
+		start_url: "/",
 		display: "standalone",
+    screenshots: [
+      {
+        form_factor: 'wide',
+        platform: 'windows',
+        src: '/screenshots/windows.jpeg',
+        sizes: '1710x1149',
+      },
+      {
+        form_factor: 'wide',
+        platform: 'macos',
+        src: '/screenshots/macos.jpeg',
+        sizes: '1710x1149',
+      },
+      {
+        form_factor: 'narrow',
+        platform: 'ios',
+        src: '/screenshots/ios.png',
+        sizes: '426x928',
+      },
+      {
+        form_factor: 'narrow',
+        platform: 'android',
+        src: '/screenshots/android.png',
+        sizes: '426x928',
+      }
+    ],
 		icons: [
 			{
 				src: "/icon-192x192.png",
