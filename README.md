@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Diablo 4 - World Boss Countdown
 
-## Getting Started
+This is a simple countdown timer for the World Boss events in Diablo 4. It uses a supabase postgres database to store the subscriptions and web-push to send push notifications to the registered devices.
 
-First, run the development server:
+I am using this in parallel with a Go server that keeps sending requests to the `/api/subscription/push` endpoint before the event to trigger the push notifications.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Getting Started
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Prerequisites
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Node.js (v14 or later)
+- bun package manager (v1.1.0 or later)
 
-## Learn More
+### How to use
 
-To learn more about Next.js, take a look at the following resources:
+1. Clone the repository
+2. Run `bun install`
+3. Run `bun run dev:bun`
+4. Open the app in your browser
+5. Enable notifications
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Contributing
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
-## Deploy on Vercel
+### License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This project is licensed under the MIT License - see the LICENSE.md file for details.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Contact
+
+Paul George - contact@paulgeorge.dev
+
+Project Link: https://github.com/paulgeorge35/dent
