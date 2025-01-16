@@ -12,11 +12,7 @@ const notificationsSupported = () =>
 export default function Notifications() {
     const router = useRouter()
 
-    if (!notificationsSupported()) {
-        return <h3>Please install the PWA first!</h3>
-    }
-
-    if (window.Notification.permission === 'granted') {
+    if (window.Notification.permission === 'granted' || !notificationsSupported()) {
         return null;
     }
 
@@ -26,7 +22,7 @@ export default function Notifications() {
     }
 
     return <>
-        <button type="button" onClick={handleSubscribe} className="flex items-center gap-2">
+        <button type="button" onClick={handleSubscribe} className="flex items-center gap-2 ml-auto p-4 bg-muted/10">
             <Bell className="size-4" />
             Enable Notifications
         </button>
@@ -56,8 +52,6 @@ const subscribe = async () => {
         const subscription = await swRegistration.pushManager.subscribe(options)
 
         await saveSubscription(subscription)
-
-        console.log({ subscription })
     } catch (err) {
         console.error('Error', err)
     }

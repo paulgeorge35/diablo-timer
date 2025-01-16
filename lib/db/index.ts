@@ -1,12 +1,6 @@
-import Database from 'better-sqlite3';
-import path from 'node:path';
+import { env } from "@/env";
+import postgres from "postgres";
 
-const db = new Database(path.join(process.cwd(), 'subscriptions.db'));
-db.exec(`
-  CREATE TABLE IF NOT EXISTS subscriptions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    subscription TEXT NOT NULL
-  );
-`);
+const sql = postgres(env.DATABASE_URL);
 
-export default db; 
+export default sql;

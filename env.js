@@ -10,6 +10,7 @@ export const env = createEnv({
     APP_URL: z.string(),
     PRIVATE_KEY: z.string(),
     NOTIFY_MINUTES_BEFORE_EVENT: z.coerce.number().default(10),
+    DATABASE_URL: z.string(),
   },
 
   /**
@@ -30,6 +31,7 @@ export const env = createEnv({
     APP_URL: process.env.APP_URL,
     PRIVATE_KEY: process.env.PRIVATE_KEY,
     NOTIFY_MINUTES_BEFORE_EVENT: process.env.NOTIFY_MINUTES_BEFORE_EVENT,
+    DATABASE_URL: process.env.DATABASE_URL,
     NEXT_PUBLIC_PUBLIC_KEY: process.env.NEXT_PUBLIC_PUBLIC_KEY,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   },

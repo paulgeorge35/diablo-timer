@@ -25,9 +25,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Save to database
-    const result = addSubscription(data);
+    const result = await addSubscription(data);
 
-    return NextResponse.json({ success: true, id: result.lastInsertRowid }, {
+    return NextResponse.json({ success: true }, {
       headers: {
         'Access-Control-Allow-Origin': allowedOrigin,
         'Access-Control-Allow-Methods': 'POST',

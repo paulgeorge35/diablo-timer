@@ -29,16 +29,16 @@ const subscriptionSchema = z.object({
 });
 
 const Subscription = z.object({
-	id: z.number(),
+	id: z.string(),
 	subscription: z
 		.string()
 		.transform((s) => subscriptionSchema.parse(JSON.parse(s))),
 });
 
 export async function GET(_: NextRequest) {
-	const subscriptions = getAllSubscriptions();
+	const subscriptions = await getAllSubscriptions();
 
-	const parsedSubscriptions = subscriptions.map((s) => Subscription.parse(s));
+	const parsedSubscriptions = z.array(Subscription).parse(subscriptions);
 
 	const now = DateTime.now();
 	const eventsUntilNow = Math.ceil(
@@ -48,19 +48,18 @@ export async function GET(_: NextRequest) {
 	const nextEvent = BASE_LINE_WORLD_EVENT.plus({
 		milliseconds: eventsUntilNow * WORLD_EVENT_INTERVAL,
 	});
-	const timeLeft = nextEvent.diff(now, 'minutes').minutes;
-    
+	const timeLeft = nextEvent.diff(now, "minutes").minutes;
+
 	if (timeLeft > env.NOTIFY_MINUTES_BEFORE_EVENT) {
 		return NextResponse.json({
 			message: `No events within ${env.NOTIFY_MINUTES_BEFORE_EVENT} minutes`,
 		});
 	}
 
-
 	for (const s of parsedSubscriptions) {
 		const payload = JSON.stringify({
 			title: "World Boss Alert!",
-			body: "A new World Boss event is starting in 10 minutes!",
+			body: `A new World Boss event is starting in ${timeLeft.toFixed(0)} minutes!`,
 		});
 		webpush.sendNotification(s.subscription, payload);
 	}

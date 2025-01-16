@@ -1,26 +1,26 @@
-import db from './index';
+import sql from './index';
 
-export const addSubscription = (subscription: string) => {
-  const stmt = db.prepare('INSERT INTO subscriptions (subscription) VALUES (?)');
-  return stmt.run(subscription);
+export const addSubscription = async (subscription: string) => {
+  const result = await sql`INSERT INTO subscriptions (subscription) VALUES (${subscription})`;
+  return result;
 };
 
-export const getSubscription = (id: number) => {
-  const stmt = db.prepare('SELECT * FROM subscriptions WHERE id = ?');
-  return stmt.get(id);
+export const getSubscription = async (id: number) => {
+  const result = await sql`SELECT * FROM subscriptions WHERE id = ${id}`;
+  return result;
 };
 
-export const getAllSubscriptions = () => {
-  const stmt = db.prepare('SELECT * FROM subscriptions');
-  return stmt.all();
+export const getAllSubscriptions = async () => {
+  const result = await sql`SELECT * FROM subscriptions`;
+  return result;
 };
 
-export const deleteSubscription = (id: number) => {
-  const stmt = db.prepare('DELETE FROM subscriptions WHERE id = ?');
-  return stmt.run(id);
+export const deleteSubscription = async (id: number) => {
+  const result = await sql`DELETE FROM subscriptions WHERE id = ${id}`;
+  return result;
 }; 
 
-export const deleteAllSubscriptions = () => {
-  const stmt = db.prepare('DELETE FROM subscriptions');
-  return stmt.run();
+export const deleteAllSubscriptions = async () => {
+  const result = await sql`DELETE FROM subscriptions`;
+  return result;
 };
