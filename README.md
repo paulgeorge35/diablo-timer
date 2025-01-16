@@ -33,4 +33,4 @@ This project is licensed under the MIT License - see the LICENSE.md file for det
 
 Paul George - contact@paulgeorge.dev
 
-Project Link: https://github.com/paulgeorge35/dent
+Project Link: https://github.com/paulgeorge35/diablo-timer
