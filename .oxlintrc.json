@@ -1,0 +1,81 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "react", "nextjs", "import", "jsx-a11y"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "perf": "warn",
+    "style": "off",
+    "pedantic": "off",
+    "restriction": "off",
+    "nursery": "off"
+  },
+  "env": {
+    "builtin": true,
+    "es2024": true
+  },
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/dist/**",
+    "**/public/**",
+    "bun.lock",
+    "bun.lockb",
+    "**/*.min.js",
+    "**/next-env.d.ts"
+  ],
+  "options": {
+    "typeAware": false,
+    "typeCheck": false
+  },
+  "settings": {
+    "next": {
+      "rootDir": "."
+    },
+    "react": {
+      "version": "19.0",
+      "linkComponents": [{ "name": "Link", "linkAttribute": "href" }]
+    },
+    "jsx-a11y": {
+      "components": { "Link": "a", "Button": "button" }
+    }
+  },
+  "rules": {
+    "typescript/no-explicit-any": "error",
+    "typescript/no-non-null-assertion": "off",
+    "unicorn/filename-case": [
+      "warn",
+      {
+        "case": "kebabCase",
+        "ignore": ["README.md", "^[A-Z].*\\.tsx$"]
+      }
+    ],
+    "unicorn/no-null": "off",
+    "unicorn/no-array-reduce": "off",
+    "import/no-cycle": "error",
+    "import/no-unassigned-import": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-no-useless-fragment": "warn",
+    "nextjs/no-img-element": "off",
+    "no-underscore-dangle": ["error", { "allow": ["__dirname", "_count"] }],
+    "no-console": ["warn", { "allow": ["warn", "error", "info"] }]
+  },
+  "overrides": [
+    {
+      "files": ["app/**/*.{ts,tsx}", "components/**/*.{ts,tsx}"],
+      "env": { "browser": true, "node": true }
+    },
+    {
+      "files": ["app/api/**/*.{ts,tsx}", "lib/**/*.{ts,tsx}", "*.{ts,js,mjs}"],
+      "env": { "node": true }
+    },
+    {
+      "files": ["**/*.{test,spec}.{ts,tsx}", "**/scripts/**/*.{ts,tsx,js,mjs}"],
+      "rules": { "no-console": "off" }
+    },
+    {
+      "files": ["**/*.{js,mjs,cjs}"],
+      "rules": { "typescript/no-explicit-any": "off" }
+    }
+  ]
+}

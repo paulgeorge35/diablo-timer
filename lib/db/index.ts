@@ -1,6 +1,7 @@
-import { env } from "@/env";
-import postgres from "postgres";
+import postgres from "postgres"
 
-const sql = postgres(env.DATABASE_URL);
+import { env } from "@/env"
 
-export default sql;
+const sql = postgres(env.DATABASE_URL)
+
+export default sql
