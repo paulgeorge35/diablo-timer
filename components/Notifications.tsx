@@ -4,12 +4,7 @@ import { Bell, BellOff, Settings2, X } from "lucide-react"
 import { useEffect, useId, useRef, useState } from "react"
 
 import { env } from "@/env"
-import {
-  ALL_EVENT_IDS,
-  DEFAULT_NOTIFY_EVENT_IDS,
-  EVENTS,
-  type EventId,
-} from "@/lib/events"
+import { ALL_EVENT_IDS, DEFAULT_NOTIFY_EVENT_IDS, EVENTS, type EventId } from "@/lib/events"
 
 type Status = "loading" | "unsupported" | "denied" | "unsubscribed" | "subscribed"
 
@@ -198,7 +193,7 @@ export default function Notifications() {
       <dialog
         ref={dialogRef}
         aria-labelledby={titleId}
-        className="fixed inset-0 m-auto max-h-[min(90vh,36rem)] w-[min(100%-2rem,24rem)] border border-border bg-background p-0 text-foreground shadow-2xl open:flex open:flex-col backdrop:bg-black/70"
+        className="fixed inset-0 m-auto max-h-[min(90vh,36rem)] w-[min(100%-2rem,24rem)] border border-border bg-background p-0 text-foreground shadow-2xl backdrop:bg-black/70 open:flex open:flex-col"
         onCancel={(event) => {
           if (busy) event.preventDefault()
         }}
@@ -228,7 +223,7 @@ export default function Notifications() {
         </div>
 
         <fieldset className="flex-1 overflow-y-auto px-5 py-4">
-          <legend className="font-diablo-light mb-3 text-xs tracking-wide text-muted-foreground">
+          <legend className="font-diablo-light pt-4 text-xs tracking-wide text-muted-foreground">
             Notify me for
           </legend>
           <div className="grid gap-2">
