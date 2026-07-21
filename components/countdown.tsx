@@ -56,11 +56,6 @@ export function Countdown({
       <article
         className={`relative flex items-center justify-between gap-4 border-b border-border/60 py-3 last:border-b-0 ${className}`}
       >
-        {notificationsEnabled ? (
-          <span className="absolute top-1/2 -left-2 -translate-y-[calc(50%-2px)]">
-            {eventId !== "world-boss" && <PulsatingDot tone="accent" />}
-          </span>
-        ) : null}
         <div className="flex min-w-0 items-center gap-3">
           <Image
             src={eventIconUrl(countdown.icon, 32)}
@@ -70,12 +65,15 @@ export function Countdown({
             className="size-8 shrink-0 opacity-80"
           />
           <div className="min-w-0">
-            <p className="font-diablo-light flex items-center truncate text-sm text-foreground/90">
+            <span className="font-diablo-light flex items-center text-sm text-foreground/90">
+              {eventId !== "world-boss" && (
+                <PulsatingDot tone="accent" className="mr-2" active={notificationsEnabled} />
+              )}
               {displayName}
               {countdown.status === "active" ? (
                 <span className="ml-2 text-xs text-accent">Active</span>
               ) : null}
-            </p>
+            </span>
             {showNextOccurrence ? (
               <p className="font-diablo-light flex items-center gap-1.5 text-xs text-muted-foreground">
                 <time dateTime={countdown.eventDateTime}>{countdown.eventTime}</time>
