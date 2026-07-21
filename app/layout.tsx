@@ -47,7 +47,7 @@ export default function RootLayout({
             alt="Diablo IV Background"
             fill
             priority
-            className="object-cover object-right opacity-25"
+            className="object-cover object-center opacity-25"
             unoptimized
             loading="eager"
           />
