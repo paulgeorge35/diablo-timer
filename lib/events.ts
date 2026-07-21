@@ -63,6 +63,21 @@ export const WORLD_BOSS_PRIMARY_ZONES: WorldBossPrimaryZone[] = [
 
 export const WORLD_BOSS_SECONDARY_ZONES: WorldBossSecondaryZone[] = ["Nahantu", "Skovos"]
 
+/** Primary zone for each spawn in order (verified against community trackers). */
+export const WORLD_BOSS_ZONE_ROTATION: readonly WorldBossPrimaryZone[] = [
+  "Kehjistan",
+  "Fractured Peaks",
+  "Kehjistan",
+  "Scosglen",
+  "Fractured Peaks",
+  "Dry Steppes",
+  "Scosglen",
+  "Fractured Peaks",
+]
+
+/** Baseline spawn (2025-01-16T10:00:00Z) was in Fractured Peaks. */
+const WORLD_BOSS_BASELINE_ZONE_ROTATION_INDEX = 1
+
 export type EventConfig = IntervalEvent | HelltideEvent
 
 export const EVENTS = {
@@ -156,6 +171,20 @@ export function getWorldBossAtStart(
   start: DateTime,
 ): WorldBossEvent {
   return getWorldBossForSpawnIndex(getWorldBossSpawnIndex(baselineIso, intervalMs, start))
+}
+
+export function getWorldBossZoneForSpawnIndex(spawnIndex: number): WorldBossPrimaryZone {
+  const len = WORLD_BOSS_ZONE_ROTATION.length
+  const index = (((WORLD_BOSS_BASELINE_ZONE_ROTATION_INDEX + spawnIndex) % len) + len) % len
+  return WORLD_BOSS_ZONE_ROTATION[index]!
+}
+
+export function getWorldBossZoneAtStart(
+  baselineIso: string,
+  intervalMs: number,
+  start: DateTime,
+): WorldBossPrimaryZone {
+  return getWorldBossZoneForSpawnIndex(getWorldBossSpawnIndex(baselineIso, intervalMs, start))
 }
 
 /** Next spawn/start that has not begun yet. */
@@ -298,6 +327,7 @@ export type EventCountdown = {
   name: string
   icon: string
   bossName?: WorldBossEvent
+  zoneName?: WorldBossPrimaryZone
   timeLeft: string
   eventTime: string
   eventDateTime: string | undefined
@@ -351,10 +381,16 @@ export function getEventCountdown(
       ? getWorldBossAtStart(event.baseline, event.intervalMs, state.start)
       : undefined
 
+  const zoneName =
+    eventId === "world-boss" && event.kind === "interval"
+      ? getWorldBossZoneAtStart(event.baseline, event.intervalMs, state.start)
+      : undefined
+
   return {
     name: event.name,
     icon: event.icon,
     bossName,
+    zoneName,
     timeLeft: formatCountdown(now, state.target),
     eventTime: state.start.toLocal().toFormat("h:mma"),
     eventDateTime: state.start.toISO() ?? undefined,

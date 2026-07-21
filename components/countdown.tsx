@@ -1,10 +1,9 @@
 "use client"
 
-import { DateTime } from "luxon"
 import Image from "next/image"
-import { useEffect, useState } from "react"
 
-import { type EventId, eventIconUrl, getEventCountdown, worldBossImageUrl } from "@/lib/events"
+import { type EventId, eventIconUrl, worldBossImageUrl } from "@/lib/events"
+import { useEventCountdown } from "@/lib/use-event-countdown"
 import { useNotificationPrefs } from "@/lib/notification-prefs"
 
 import { PulsatingDot } from "./pulsating-dot"
@@ -17,21 +16,6 @@ type CountdownProps = {
   name?: string
   variant?: CountdownVariant
   className?: string
-}
-
-function useEventCountdown(eventId: EventId, index: number) {
-  const [now, setNow] = useState<DateTime | null>(null)
-
-  useEffect(() => {
-    setNow(DateTime.now())
-    const timer = setInterval(() => {
-      setNow(DateTime.now())
-    }, 1000)
-
-    return () => clearInterval(timer)
-  }, [])
-
-  return getEventCountdown(eventId, now, index)
 }
 
 function FixedWidthCountdown({ value, className = "" }: { value: string; className?: string }) {
