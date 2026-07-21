@@ -13,6 +13,7 @@ export function CountdownRow({
   eventId,
   displayName,
   bossImageUrl,
+  secondaryImageUrl,
   notificationsEnabled,
   className = "",
 }: CountdownViewProps) {
@@ -46,12 +47,31 @@ export function CountdownRow({
               <span className="ml-2 text-xs text-accent">Active</span>
             ) : null}
           </span>
-          <time
-            dateTime={countdown.eventDateTime}
-            className="font-diablo-light text-xs text-muted-foreground"
-          >
-            {countdown.eventTime}
-          </time>
+          <span className="font-diablo-light flex items-center gap-1.5 text-xs text-muted-foreground">
+            {countdown.zoneName ? (
+              <span className="text-primary/70">{countdown.zoneName}</span>
+            ) : null}
+            {countdown.zoneName ? <span aria-hidden="true">·</span> : null}
+            <time dateTime={countdown.eventDateTime}>{countdown.eventTime}</time>
+          </span>
+          {countdown.secondary ? (
+            <span className="font-diablo-light mt-1 flex items-center gap-1.5 text-xs text-muted-foreground/90">
+              {secondaryImageUrl ? (
+                <Image
+                  src={secondaryImageUrl}
+                  alt=""
+                  width={16}
+                  height={16}
+                  className="size-4 shrink-0 rounded-full border border-primary/50"
+                  unoptimized
+                />
+              ) : null}
+              <span>
+                {countdown.secondary.boss}
+                <span className="text-primary/70"> · {countdown.secondary.zone}</span>
+              </span>
+            </span>
+          ) : null}
         </div>
       </div>
       <time

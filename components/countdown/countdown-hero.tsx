@@ -12,6 +12,7 @@ export function CountdownHero({
   countdown,
   displayName,
   bossImageUrl,
+  secondaryImageUrl,
   notificationsEnabled,
   className = "",
 }: CountdownViewProps) {
@@ -34,6 +35,11 @@ export function CountdownHero({
         {notificationsEnabled ? <PulsatingDot tone="accent" className="mr-2" /> : null}
         {displayName}
       </p>
+      {countdown.zoneName ? (
+        <p className="font-diablo-light mb-1 text-xs tracking-wide text-primary/80 sm:text-sm">
+          {countdown.zoneName}
+        </p>
+      ) : null}
       <time
         dateTime={countdown.eventDateTime}
         className={cn("font-diablo-heavy px-2 text-5xl tracking-wide sm:text-6xl md:text-7xl", {
@@ -52,6 +58,22 @@ export function CountdownHero({
       >
         {countdown.eventTime} local
       </time>
+      {countdown.secondary ? (
+        <div className="mt-4 flex items-center gap-3 border border-primary/30 bg-primary/5 px-4 py-2">
+          {secondaryImageUrl ? (
+            <BossAvatar src={secondaryImageUrl} alt={countdown.secondary.boss} size="row" />
+          ) : null}
+          <div className="text-left">
+            <p className="font-diablo-light text-[0.65rem] tracking-wide text-muted-foreground uppercase">
+              Also spawning
+            </p>
+            <p className="font-diablo-light text-sm text-foreground/90">
+              {countdown.secondary.boss}
+              <span className="text-primary/80"> · {countdown.secondary.zone}</span>
+            </p>
+          </div>
+        </div>
+      ) : null}
     </article>
   )
 }

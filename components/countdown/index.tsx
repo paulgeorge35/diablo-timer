@@ -38,11 +38,16 @@ export function Countdown({
       ? worldBossImageUrl(countdown.bossName, BOSS_AVATAR_DISPLAY_PX[variant])
       : undefined
 
+  const secondaryImageUrl = countdown.secondary
+    ? worldBossImageUrl(countdown.secondary.boss, BOSS_AVATAR_DISPLAY_PX.row)
+    : undefined
+
   const viewProps = {
     countdown,
     eventId,
     displayName,
     bossImageUrl,
+    secondaryImageUrl,
     notificationsEnabled,
     className,
   }

@@ -4,6 +4,17 @@ export type WorldBossEvent = "Avarice" | "Ashava" | "Azmodan" | "Wandering Death
 
 export type WorldBossPrimaryZone = "Kehjistan" | "Fractured Peaks" | "Scosglen" | "Dry Steppes"
 
+/** Expansion (Vessel of Hatred) zones where secondary bosses appear. */
+export type WorldBossSecondaryZone = "Nahantu" | "Skovos"
+
+export type WorldBossZone = WorldBossPrimaryZone | WorldBossSecondaryZone
+
+/** An additional boss that spawns in an expansion zone alongside the main rotation. */
+export type SecondaryBossSpawn = {
+  boss: WorldBossEvent
+  zone: WorldBossSecondaryZone
+}
+
 /** A cyclic lookup table: `values` repeats forever, offset so `baselineIndex` aligns with spawn 0. */
 export type RotationTable<T> = {
   values: readonly T[]
@@ -14,6 +25,8 @@ export type RotationTable<T> = {
 export type EventRotation = {
   boss: RotationTable<WorldBossEvent>
   zone: RotationTable<WorldBossPrimaryZone>
+  /** Secondary expansion-zone boss per spawn, or `null` when none spawns. */
+  secondary: RotationTable<SecondaryBossSpawn | null>
 }
 
 /**
@@ -66,6 +79,22 @@ const WORLD_BOSS_ZONE_ROTATION: readonly WorldBossPrimaryZone[] = [
   "Fractured Peaks",
 ]
 
+/**
+ * Secondary boss per spawn, aligned to the same rotation as the primary boss/zone.
+ * Only two spawns have one: the second Ashava (Avarice in Skovos) and the second
+ * Wandering Death (Avarice in Nahantu).
+ */
+const WORLD_BOSS_SECONDARY_ROTATION: readonly (SecondaryBossSpawn | null)[] = [
+  null, // Avarice — Kehjistan
+  null, // Avarice — Fractured Peaks
+  null, // Ashava — Kehjistan
+  { boss: "Avarice", zone: "Skovos" }, // Ashava — Scosglen
+  null, // Azmodan — Fractured Peaks
+  null, // Azmodan — Dry Steppes
+  null, // Wandering Death — Scosglen
+  { boss: "Avarice", zone: "Nahantu" }, // Wandering Death — Fractured Peaks
+]
+
 /** Baseline spawn (2025-01-16T10:00:00Z) was the second Avarice and was in Fractured Peaks. */
 const WORLD_BOSS_ROTATION_TABLE: RotationTable<WorldBossEvent> = {
   values: WORLD_BOSS_ROTATION,
@@ -77,6 +106,11 @@ const WORLD_BOSS_ZONE_TABLE: RotationTable<WorldBossPrimaryZone> = {
   baselineIndex: 1,
 }
 
+const WORLD_BOSS_SECONDARY_TABLE: RotationTable<SecondaryBossSpawn | null> = {
+  values: WORLD_BOSS_SECONDARY_ROTATION,
+  baselineIndex: 1,
+}
+
 export const EVENTS: Record<EventId, EventConfig> = {
   "world-boss": {
     name: "World Boss",
@@ -84,7 +118,11 @@ export const EVENTS: Record<EventId, EventConfig> = {
     baseline: "2025-01-16T10:00:00Z",
     intervalMs: 3.5 * 60 * 60 * 1000,
     accent: "primary",
-    rotation: { boss: WORLD_BOSS_ROTATION_TABLE, zone: WORLD_BOSS_ZONE_TABLE },
+    rotation: {
+      boss: WORLD_BOSS_ROTATION_TABLE,
+      zone: WORLD_BOSS_ZONE_TABLE,
+      secondary: WORLD_BOSS_SECONDARY_TABLE,
+    },
   },
   legion: {
     name: "Legion",

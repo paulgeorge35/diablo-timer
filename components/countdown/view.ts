@@ -6,6 +6,7 @@ export type CountdownViewProps = {
   eventId: EventId
   displayName: string
   bossImageUrl?: string
+  secondaryImageUrl?: string
   notificationsEnabled: boolean
   className?: string
 }

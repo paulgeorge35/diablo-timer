@@ -3,6 +3,7 @@ import { DateTime } from "luxon"
 import {
   EVENTS,
   type EventId,
+  type SecondaryBossSpawn,
   WORLD_BOSS_IMAGES,
   type WorldBossEvent,
   type WorldBossPrimaryZone,
@@ -31,6 +32,8 @@ export type EventCountdown = {
   icon: string
   bossName?: WorldBossEvent
   zoneName?: WorldBossPrimaryZone
+  /** Additional boss spawning in an expansion zone during this occurrence, when any. */
+  secondary?: SecondaryBossSpawn
   timeLeft: string
   eventTime: string
   eventDateTime: string | undefined
@@ -68,12 +71,16 @@ export function getEventCountdown(
 
   const bossName = event.rotation ? rotationAt(event.rotation.boss, state.spawnIndex) : undefined
   const zoneName = event.rotation ? rotationAt(event.rotation.zone, state.spawnIndex) : undefined
+  const secondary = event.rotation
+    ? (rotationAt(event.rotation.secondary, state.spawnIndex) ?? undefined)
+    : undefined
 
   return {
     name: event.name,
     icon: event.icon,
     bossName,
     zoneName,
+    secondary,
     timeLeft: formatCountdown(now, state.target),
     eventTime: state.start.toLocal().toFormat("h:mma"),
     eventDateTime: state.start.toISO() ?? undefined,
