@@ -23,21 +23,16 @@ export default function Home() {
     <div className="relative flex min-h-svh flex-col">
       <section className="flex min-h-svh flex-col items-center justify-center px-6 py-16 text-center">
         <h1 className="animate-fade-rise font-diablo-heavy mb-8 text-4xl tracking-wide text-foreground sm:text-5xl md:text-6xl">
-          World Boss Countdown
+          Diablo Sanctuary Timer
         </h1>
 
         <div className="animate-fade-rise-delay-1 mb-8">
-          <Countdown
-            eventId="world-boss"
-            index={0}
-            name="Upcoming World Boss"
-            variant="hero"
-          />
+          <Countdown eventId="world-boss" index={0} name="Upcoming World Boss" variant="hero" />
         </div>
 
         <p className="animate-fade-rise-delay-1 font-diablo-light mb-6 max-w-md text-sm text-muted-foreground">
-          World Boss every 3.5 hours — Legion, Helltide, and Realmwalker below.
-          Enable alerts so you never miss the next hunt.
+          World Boss every 3.5 hours — Legion, Helltide, and Realmwalker below. Enable alerts so you
+          never miss the next hunt.
         </p>
 
         <div className="animate-fade-rise-delay-1">
