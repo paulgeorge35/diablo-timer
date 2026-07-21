@@ -57,7 +57,7 @@ export function Countdown({
         className={`relative flex items-center justify-between gap-4 border-b border-border/60 py-3 last:border-b-0 ${className}`}
       >
         {notificationsEnabled ? (
-          <span className="absolute top-1/2 -left-4 -translate-y-[calc(50%-2px)]">
+          <span className="absolute top-1/2 -left-2 -translate-y-[calc(50%-2px)]">
             {eventId !== "world-boss" && <PulsatingDot tone="accent" />}
           </span>
         ) : null}
