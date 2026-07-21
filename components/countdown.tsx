@@ -4,12 +4,7 @@ import { DateTime } from "luxon"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 
-import {
-  type EventId,
-  eventIconUrl,
-  getEventCountdown,
-  worldBossImageUrl,
-} from "@/lib/events"
+import { type EventId, eventIconUrl, getEventCountdown, worldBossImageUrl } from "@/lib/events"
 import { useNotificationPrefs } from "@/lib/notification-prefs"
 
 import { PulsatingDot } from "./pulsating-dot"
@@ -39,6 +34,22 @@ function useEventCountdown(eventId: EventId, index: number) {
   }, [])
 
   return getEventCountdown(eventId, now, index)
+}
+
+function FixedWidthCountdown({ value, className = "" }: { value: string; className?: string }) {
+  return (
+    <span className={`inline-flex items-baseline ${className}`} aria-label={value}>
+      {value.split("").map((char, index) =>
+        /\d/.test(char) ? (
+          <span key={index} className="inline-flex w-[0.9ch] justify-center">
+            {char}
+          </span>
+        ) : (
+          <span key={index}>{char}</span>
+        ),
+      )}
+    </span>
+  )
 }
 
 const BOSS_AVATAR_DISPLAY_PX = {
@@ -154,9 +165,9 @@ export function Countdown({
         </div>
         <time
           dateTime={countdown.eventDateTime}
-          className={`font-diablo-heavy shrink-0 text-lg tabular-nums sm:text-xl ${timeClass}`}
+          className={`font-diablo-heavy shrink-0 text-lg sm:text-xl ${timeClass}`}
         >
-          {countdown.timeLeft}
+          <FixedWidthCountdown value={countdown.timeLeft} />
         </time>
       </article>
     )
@@ -183,9 +194,9 @@ export function Countdown({
       </p>
       <time
         dateTime={countdown.eventDateTime}
-        className={`font-diablo-heavy px-2 text-5xl tracking-wide tabular-nums sm:text-6xl md:text-7xl ${timeClass}`}
+        className={`font-diablo-heavy px-2 text-5xl tracking-wide sm:text-6xl md:text-7xl ${timeClass}`}
       >
-        {countdown.timeLeft}
+        <FixedWidthCountdown value={countdown.timeLeft} />
       </time>
       <p className="font-diablo-light mt-2 text-sm text-muted-foreground">
         {countdown.statusLabel}

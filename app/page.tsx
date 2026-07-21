@@ -16,7 +16,7 @@ export default function Home() {
   return (
     <div className="relative flex min-h-svh flex-col">
       <section className="flex min-h-svh flex-col items-center justify-center px-6 py-16 text-center">
-        <h1 className="animate-fade-rise font-diablo-heavy mb-8 text-4xl tracking-wide text-foreground sm:text-5xl md:text-6xl">
+        <h1 className="animate-fade-rise font-diablo-heavy mb-8 text-4xl tracking-wide text-pretty text-foreground sm:text-5xl md:text-6xl">
           Diablo Sanctuary Tracker
         </h1>
 

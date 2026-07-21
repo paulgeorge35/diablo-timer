@@ -46,7 +46,7 @@ export const WORLD_BOSS_ROTATION: readonly WorldBossEvent[] = WORLD_BOSS_NAMES.f
 ])
 
 /** Baseline spawn (2025-01-16T10:00:00Z) was the second Avarice in the rotation. */
-const WORLD_BOSS_BASELINE_ROTATION_INDEX = 7
+const WORLD_BOSS_BASELINE_ROTATION_INDEX = 1
 
 export type WorldBossPrimaryZone = "Kehjistan" | "Fractured Peaks" | "Scosglen" | "Dry Steppes"
 
