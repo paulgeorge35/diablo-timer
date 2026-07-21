@@ -36,6 +36,7 @@ export type EventRotation = {
  */
 export type EventConfig = {
   name: string
+  /** CDN asset id for the event icon (resolved to a URL via `cdnImageUrl`). */
   icon: string
   baseline: string
   intervalMs: number
@@ -51,14 +52,12 @@ export const WORLD_BOSS_NAMES: readonly WorldBossEvent[] = [
   "Wandering Death",
 ] as const
 
-export const WORLD_BOSS_IMAGES: Map<WorldBossEvent, string> = new Map([
-  ["Avarice", "https://cdn.paulgeorge.dev/p/cmrtphyvt000001lkv0pb5d2m/cmrv5xfpc000a01lkfv998ucm"],
-  ["Ashava", "https://cdn.paulgeorge.dev/p/cmrtphyvt000001lkv0pb5d2m/cmrv5ui24000901lkua3py5ny"],
-  ["Azmodan", "https://cdn.paulgeorge.dev/p/cmrtphyvt000001lkv0pb5d2m/cmrv626ii000001tf0g9dcko7"],
-  [
-    "Wandering Death",
-    "https://cdn.paulgeorge.dev/p/cmrtphyvt000001lkv0pb5d2m/cmrv5xfpd000b01lkgmd5zshw",
-  ],
+/** CDN asset ids for each boss portrait (resolved to URLs via `cdnImageUrl`). */
+export const WORLD_BOSS_IMAGE_IDS: Map<WorldBossEvent, string> = new Map([
+  ["Avarice", "cmrv5xfpc000a01lkfv998ucm"],
+  ["Ashava", "cmrv5ui24000901lkua3py5ny"],
+  ["Azmodan", "cmrv626ii000001tf0g9dcko7"],
+  ["Wandering Death", "cmrv5xfpd000b01lkgmd5zshw"],
 ])
 
 /** Two of each boss in order: Avarice, Avarice, Ashava, Ashava, … */
@@ -114,7 +113,7 @@ const WORLD_BOSS_SECONDARY_TABLE: RotationTable<SecondaryBossSpawn | null> = {
 export const EVENTS: Record<EventId, EventConfig> = {
   "world-boss": {
     name: "World Boss",
-    icon: "https://cdn.paulgeorge.dev/p/cmrtphyvt000001lkv0pb5d2m/cmrtqeeh4000701lklzzcpdh7",
+    icon: "cmrtqeeh4000701lklzzcpdh7",
     baseline: "2025-01-16T10:00:00Z",
     intervalMs: 3.5 * 60 * 60 * 1000,
     accent: "primary",
@@ -126,7 +125,7 @@ export const EVENTS: Record<EventId, EventConfig> = {
   },
   legion: {
     name: "Legion",
-    icon: "https://cdn.paulgeorge.dev/p/cmrtphyvt000001lkv0pb5d2m/cmrtqchoo000401lk4n2ht3ml",
+    icon: "cmrtqchoo000401lk4n2ht3ml",
     // :50 past the hour UTC cadence — every 25 minutes (:50, :15, :40, :05, …)
     baseline: "2026-07-20T21:50:00Z",
     intervalMs: 25 * 60 * 1000,
@@ -134,7 +133,7 @@ export const EVENTS: Record<EventId, EventConfig> = {
   },
   realmwalker: {
     name: "Realmwalker",
-    icon: "https://cdn.paulgeorge.dev/p/cmrtphyvt000001lkv0pb5d2m/cmrtqchoq000501lk78mxsa11",
+    icon: "cmrtqchoq000501lk78mxsa11",
     // Same 25-minute cadence as Legion
     baseline: "2026-07-20T21:50:00Z",
     intervalMs: 25 * 60 * 1000,
@@ -142,7 +141,7 @@ export const EVENTS: Record<EventId, EventConfig> = {
   },
   helltide: {
     name: "Helltide",
-    icon: "https://cdn.paulgeorge.dev/p/cmrtphyvt000001lkv0pb5d2m/cmrtqchor000601lkhrhogly8",
+    icon: "cmrtqchor000601lkhrhogly8",
     // Aligned to the top of every UTC hour; baseline is any hour boundary.
     baseline: "2024-01-01T00:00:00Z",
     intervalMs: 60 * 60 * 1000,

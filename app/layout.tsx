@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 import localFont from "next/font/local"
 import Image from "next/image"
 
+import { BACKGROUND_IMAGE_ID, cdnImageUrl } from "@/lib/cdn"
+
 import "./globals.css"
 
 const diabloHeavy = localFont({
@@ -43,7 +45,7 @@ export default function RootLayout({
       >
         <div className="fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
           <Image
-            src="https://cdn.paulgeorge.dev/p/cmrtphyvt000001lkv0pb5d2m/cmrtr2cnj000801lk1g6tbyoq"
+            src={cdnImageUrl(BACKGROUND_IMAGE_ID)}
             alt="Diablo IV Background"
             fill
             priority

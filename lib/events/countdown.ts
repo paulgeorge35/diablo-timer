@@ -1,26 +1,28 @@
 import { DateTime } from "luxon"
 
+import { cdnImageUrl } from "@/lib/cdn"
+
 import {
   EVENTS,
   type EventId,
   type SecondaryBossSpawn,
-  WORLD_BOSS_IMAGES,
+  WORLD_BOSS_IMAGE_IDS,
   type WorldBossEvent,
   type WorldBossPrimaryZone,
 } from "./config"
 import { getOccurrence, type OccurrenceStatus } from "./schedule"
 import { rotationAt } from "./world-boss"
 
-export function eventIconUrl(icon: string, size: number) {
-  return `${icon}?w=${size}&h=${size}`
+export function eventIconUrl(iconId: string, size: number) {
+  return cdnImageUrl(iconId, { w: size, h: size })
 }
 
 /** CDN resize for boss portraits — 2× display size for retina, served directly (not via Next image optimizer). */
 export function worldBossImageUrl(boss: WorldBossEvent, displaySizePx: number) {
-  const base = WORLD_BOSS_IMAGES.get(boss)
-  if (!base) return ""
+  const id = WORLD_BOSS_IMAGE_IDS.get(boss)
+  if (!id) return ""
   const size = Math.ceil(displaySizePx * 2)
-  return `${base}?w=${size}&q=90`
+  return cdnImageUrl(id, { w: size, q: 90 })
 }
 
 function formatCountdown(now: DateTime, target: DateTime): string {
