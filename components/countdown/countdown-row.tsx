@@ -71,9 +71,13 @@ export function CountdownRow({
                   unoptimized
                 />
               ) : null}
-              <span>
-                {countdown.secondary.boss}
-                <span className="text-primary/70"> · {countdown.secondary.zone}</span>
+              <span className="flex items-center gap-1.5">
+                <span>{countdown.secondary.boss}</span>
+                <span
+                  aria-hidden="true"
+                  className="size-[3px] shrink-0 rounded-full bg-current opacity-60"
+                />
+                <span className="text-primary/70">{countdown.secondary.zone}</span>
               </span>
             </span>
           ) : null}
