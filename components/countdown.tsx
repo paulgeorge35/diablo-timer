@@ -58,7 +58,7 @@ export function Countdown({
       >
         {notificationsEnabled ? (
           <span className="absolute top-1/2 -left-4 -translate-y-[calc(50%-2px)]">
-            <PulsatingDot tone="accent" />
+            {eventId !== "world-boss" && <PulsatingDot tone="accent" />}
           </span>
         ) : null}
         <div className="flex min-w-0 items-center gap-3">
