@@ -1,6 +1,7 @@
 import Image from "next/image"
 
 import { eventIconUrl } from "@/lib/events"
+import { cn } from "@/lib/utils"
 
 import { PulsatingDot } from "../pulsating-dot"
 import { BossAvatar } from "./boss-avatar"
@@ -15,11 +16,12 @@ export function CountdownRow({
   notificationsEnabled,
   className = "",
 }: CountdownViewProps) {
-  const timeClass = countdown.accent === "accent" ? "text-accent" : "text-primary"
-
   return (
     <article
-      className={`relative flex items-center justify-between gap-4 border-b border-border/60 py-3 last:border-b-0 ${className}`}
+      className={cn(
+        "relative flex items-center justify-between gap-4 border-b border-border/60 py-3 last:border-b-0",
+        className,
+      )}
     >
       <div className="flex min-w-0 items-center gap-3">
         {bossImageUrl ? (
@@ -54,7 +56,10 @@ export function CountdownRow({
       </div>
       <time
         dateTime={countdown.eventDateTime}
-        className={`font-diablo-heavy shrink-0 text-lg sm:text-xl ${timeClass}`}
+        className={cn("font-diablo-heavy shrink-0 text-lg sm:text-xl", {
+          "text-accent": countdown.accent === "accent",
+          "text-primary": countdown.accent !== "accent",
+        })}
       >
         <FixedWidthCountdown value={countdown.timeLeft} />
       </time>

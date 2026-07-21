@@ -1,6 +1,7 @@
 import Image from "next/image"
 
 import { eventIconUrl } from "@/lib/events"
+import { cn } from "@/lib/utils"
 
 import { PulsatingDot } from "../pulsating-dot"
 import { BossAvatar } from "./boss-avatar"
@@ -14,10 +15,8 @@ export function CountdownHero({
   notificationsEnabled,
   className = "",
 }: CountdownViewProps) {
-  const timeClass = countdown.accent === "accent" ? "text-accent" : "text-primary"
-
   return (
-    <article className={`flex flex-col items-center text-center ${className}`}>
+    <article className={cn("flex flex-col items-center text-center", className)}>
       {bossImageUrl ? (
         <BossAvatar src={bossImageUrl} alt={countdown.bossName ?? ""} size="hero" priority />
       ) : (
@@ -37,7 +36,10 @@ export function CountdownHero({
       </p>
       <time
         dateTime={countdown.eventDateTime}
-        className={`font-diablo-heavy px-2 text-5xl tracking-wide sm:text-6xl md:text-7xl ${timeClass}`}
+        className={cn("font-diablo-heavy px-2 text-5xl tracking-wide sm:text-6xl md:text-7xl", {
+          "text-accent": countdown.accent === "accent",
+          "text-primary": countdown.accent !== "accent",
+        })}
       >
         <FixedWidthCountdown value={countdown.timeLeft} />
       </time>
