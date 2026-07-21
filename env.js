@@ -9,6 +9,8 @@ export const env = createEnv({
   server: {
     APP_URL: z.string(),
     PRIVATE_KEY: z.string(),
+    VAPID_SUBJECT: z.string(),
+    CRON_SECRET: z.string(),
     NOTIFY_MINUTES_BEFORE_EVENT: z.coerce.number().default(10),
     DATABASE_URL: z.string(),
   },
@@ -30,14 +32,16 @@ export const env = createEnv({
   runtimeEnv: {
     APP_URL: process.env.APP_URL,
     PRIVATE_KEY: process.env.PRIVATE_KEY,
+    VAPID_SUBJECT: process.env.VAPID_SUBJECT,
+    CRON_SECRET: process.env.CRON_SECRET,
     NOTIFY_MINUTES_BEFORE_EVENT: process.env.NOTIFY_MINUTES_BEFORE_EVENT,
     DATABASE_URL: process.env.DATABASE_URL,
     NEXT_PUBLIC_PUBLIC_KEY: process.env.NEXT_PUBLIC_PUBLIC_KEY,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   },
   /**
-   * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
-   * useful for Docker builds.
+   * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is
+   * especially useful for Docker builds.
    */
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
   /**

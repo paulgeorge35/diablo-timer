@@ -1,12 +1,26 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-import { addSubscription } from "@/lib/db/subscriptions"
+import { addSubscription, type PushSubscriptionJson } from "@/lib/db/subscriptions"
+import { env } from "@/env"
+
+function isPushSubscription(value: unknown): value is PushSubscriptionJson {
+  if (!value || typeof value !== "object") return false
+  const candidate = value as Record<string, unknown>
+  const keys = candidate.keys
+  if (!keys || typeof keys !== "object") return false
+  const keyRecord = keys as Record<string, unknown>
+  return (
+    typeof candidate.endpoint === "string" &&
+    candidate.endpoint.length > 0 &&
+    typeof keyRecord.p256dh === "string" &&
+    typeof keyRecord.auth === "string"
+  )
+}
 
 export async function POST(req: NextRequest) {
   try {
-    // Check origin
     const origin = req.headers.get("origin")
-    const allowedOrigin = process.env.APP_URL
+    const allowedOrigin = env.APP_URL
 
     if (!origin || origin !== allowedOrigin) {
       return new NextResponse("Unauthorized", {
@@ -15,17 +29,15 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // Get subscription data from request body
-    const data = await req.text()
+    const data: unknown = await req.json()
 
-    if (!data || typeof data !== "string") {
+    if (!isPushSubscription(data)) {
       return new NextResponse("Invalid subscription data", {
         status: 400,
         statusText: "Bad Request",
       })
     }
 
-    // Save to database
     await addSubscription(data)
 
     return NextResponse.json(
@@ -46,10 +58,9 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Handle OPTIONS request for CORS
 export async function OPTIONS(req: NextRequest) {
   const origin = req.headers.get("origin")
-  const allowedOrigin = process.env.APP_URL
+  const allowedOrigin = env.APP_URL
 
   if (!origin || origin !== allowedOrigin) {
     return new NextResponse(null, { status: 204 })

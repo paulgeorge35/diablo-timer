@@ -15,7 +15,7 @@ const diabloLight = localFont({
 })
 
 export const metadata: Metadata = {
-  title: "World Boss Countdown",
+  title: "Diablo 4 Timer",
   description: "Countdown to the next Diablo World Boss spawn",
 }
 

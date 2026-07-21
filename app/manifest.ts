@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next"
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "World Boss Countdown",
-    short_name: "World Boss Countdown",
+    name: "Diablo 4 Timer",
+    short_name: "Diablo 4 Timer",
     description: "Countdown to the next World Boss event",
     start_url: "/",
     display: "standalone",

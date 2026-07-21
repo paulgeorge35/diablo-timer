@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Subscription {
+  id           String   @id @default(uuid()) @db.Uuid
+  subscription Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("subscriptions")
+}
+
+model NotificationDispatch {
+  id        String   @id @default(cuid())
+  eventId   String
+  eventAt   DateTime
+  createdAt DateTime @default(now())
+
+  @@unique([eventId, eventAt])
+  @@map("notification_dispatches")
+}
