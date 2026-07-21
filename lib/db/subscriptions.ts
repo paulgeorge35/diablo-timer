@@ -1,9 +1,5 @@
 import type { Prisma } from "@/generated/prisma/client"
-import {
-  DEFAULT_NOTIFY_EVENT_IDS,
-  type EventId,
-  parseEventIds,
-} from "@/lib/events"
+import { DEFAULT_NOTIFY_EVENT_IDS, type EventId, parseEventIds } from "@/lib/events"
 
 import prisma from "./index"
 
@@ -27,12 +23,7 @@ export function parseSubscriptionJson(value: Prisma.JsonValue): PushSubscription
     }
   }
 
-  if (
-    !parsed ||
-    typeof parsed !== "object" ||
-    !("endpoint" in parsed) ||
-    !("keys" in parsed)
-  ) {
+  if (!parsed || typeof parsed !== "object" || !("endpoint" in parsed) || !("keys" in parsed)) {
     throw new Error("Invalid subscription JSON")
   }
 
@@ -91,10 +82,6 @@ export const upsertSubscription = async (
   })
 }
 
-export const getSubscription = async (id: string) => {
-  return prisma.subscription.findUnique({ where: { id } })
-}
-
 export const getSubscriptionByEndpoint = async (endpoint: string) => {
   const matchingIds = await findIdsByEndpoint(endpoint)
   if (matchingIds.length === 0) return null
@@ -111,13 +98,10 @@ export const updateSubscriptionEventIds = async (endpoint: string, eventIds: Eve
   })
 }
 
-export const getAllSubscriptions = async () => {
-  return prisma.subscription.findMany()
-}
-
 export const getSubscriptionsForEvent = async (eventId: EventId) => {
-  const rows = await prisma.subscription.findMany()
-  return rows.filter((row) => normalizeStoredEventIds(row.eventIds).includes(eventId))
+  // Valid writes always store canonical event ids, so a `has` filter matches
+  // the same rows the previous in-JS `normalizeStoredEventIds` check did.
+  return prisma.subscription.findMany({ where: { eventIds: { has: eventId } } })
 }
 
 export const deleteSubscription = async (id: string) => {
@@ -134,8 +118,4 @@ export const deleteSubscriptionsByEndpoint = async (endpoint: string) => {
   return prisma.subscription.deleteMany({
     where: { id: { in: matchingIds } },
   })
-}
-
-export const deleteAllSubscriptions = async () => {
-  return prisma.subscription.deleteMany()
 }

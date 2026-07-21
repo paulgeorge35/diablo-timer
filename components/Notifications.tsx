@@ -3,23 +3,18 @@
 import { Bell, BellOff, Settings2, X } from "lucide-react"
 import { useEffect, useId, useRef, useState } from "react"
 
-import { env } from "@/env"
 import { ALL_EVENT_IDS, DEFAULT_NOTIFY_EVENT_IDS, EVENTS, type EventId } from "@/lib/events"
 import { useNotificationPrefs } from "@/lib/notification-prefs"
+import {
+  fetchPreferences,
+  getPushSubscription,
+  notificationsSupported,
+  savePreferences,
+  subscribe,
+  unsubscribe,
+} from "@/lib/push-client"
 
 type Status = "loading" | "unsupported" | "denied" | "unsubscribed" | "subscribed"
-
-const notificationsSupported = () =>
-  typeof window !== "undefined" &&
-  "Notification" in window &&
-  "serviceWorker" in navigator &&
-  "PushManager" in window
-
-async function getPushSubscription() {
-  const registration = await navigator.serviceWorker.getRegistration()
-  if (!registration) return null
-  return registration.pushManager.getSubscription()
-}
 
 function toggleEvent(selected: EventId[], eventId: EventId): EventId[] {
   if (selected.includes(eventId)) {
@@ -302,120 +297,4 @@ export default function Notifications() {
       </dialog>
     </>
   )
-}
-
-const unregisterServiceWorkers = async () => {
-  const registrations = await navigator.serviceWorker.getRegistrations()
-  await Promise.all(registrations.map((r) => r.unregister()))
-}
-
-const registerServiceWorker = async () => {
-  return navigator.serviceWorker.register("/service.js")
-}
-
-const subscribe = async (eventIds: EventId[]) => {
-  await unregisterServiceWorkers()
-
-  const swRegistration = await registerServiceWorker()
-  const permission = await Notification.requestPermission()
-  if (permission !== "granted") {
-    throw new Error("Notification permission not granted")
-  }
-
-  const options = {
-    applicationServerKey: env.NEXT_PUBLIC_PUBLIC_KEY,
-    userVisibleOnly: true,
-  }
-  const subscription = await swRegistration.pushManager.subscribe(options)
-  await saveSubscription(subscription, eventIds)
-}
-
-const unsubscribe = async () => {
-  const subscription = await getPushSubscription()
-  if (!subscription) {
-    await unregisterServiceWorkers()
-    return
-  }
-
-  await removeSubscription(subscription.endpoint)
-  await subscription.unsubscribe()
-  await unregisterServiceWorkers()
-}
-
-const saveSubscription = async (subscription: PushSubscription, eventIds: EventId[]) => {
-  const response = await fetch(`${env.NEXT_PUBLIC_APP_URL}/api/subscription/save`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ subscription, eventIds }),
-  })
-
-  if (!response.ok) {
-    throw new Error("Failed to save subscription")
-  }
-
-  return response.json()
-}
-
-const fetchPreferences = async (endpoint: string): Promise<EventId[]> => {
-  const response = await fetch(`${env.NEXT_PUBLIC_APP_URL}/api/subscription/preferences`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ endpoint }),
-  })
-
-  if (!response.ok) {
-    return DEFAULT_NOTIFY_EVENT_IDS
-  }
-
-  const data: unknown = await response.json()
-  if (
-    data &&
-    typeof data === "object" &&
-    "eventIds" in data &&
-    Array.isArray((data as { eventIds: unknown }).eventIds)
-  ) {
-    const ids = (data as { eventIds: unknown[] }).eventIds.filter(
-      (id): id is EventId =>
-        typeof id === "string" && (ALL_EVENT_IDS as readonly string[]).includes(id),
-    )
-    return ids.length > 0 ? ids : DEFAULT_NOTIFY_EVENT_IDS
-  }
-
-  return DEFAULT_NOTIFY_EVENT_IDS
-}
-
-const savePreferences = async (endpoint: string, eventIds: EventId[]) => {
-  const response = await fetch(`${env.NEXT_PUBLIC_APP_URL}/api/subscription/preferences`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ endpoint, eventIds }),
-  })
-
-  if (!response.ok) {
-    throw new Error("Failed to save preferences")
-  }
-
-  return response.json()
-}
-
-const removeSubscription = async (endpoint: string) => {
-  const response = await fetch(`${env.NEXT_PUBLIC_APP_URL}/api/subscription/remove`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ endpoint }),
-  })
-
-  if (!response.ok) {
-    throw new Error("Failed to remove subscription")
-  }
-
-  return response.json()
 }
