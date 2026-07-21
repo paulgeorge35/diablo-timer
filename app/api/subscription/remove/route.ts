@@ -1,39 +1,25 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-import { env } from "@/env"
+import {
+  badRequest,
+  corsHeaders,
+  handleOptions,
+  readEndpoint,
+  requireSameOrigin,
+  serverError,
+} from "@/lib/api/http"
 import { deleteSubscriptionsByEndpoint } from "@/lib/db/subscriptions"
 
-function corsHeaders(origin: string) {
-  return {
-    "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-  }
-}
-
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const origin = req.headers.get("origin")
-    const allowedOrigin = env.APP_URL
+    const auth = requireSameOrigin(request)
+    if (auth instanceof NextResponse) return auth
+    const { allowedOrigin } = auth
 
-    if (!origin || origin !== allowedOrigin) {
-      return new NextResponse("Unauthorized", {
-        status: 401,
-        statusText: "Unauthorized",
-      })
-    }
-
-    const data: unknown = await req.json()
-    const endpoint =
-      data && typeof data === "object" && "endpoint" in data
-        ? (data as { endpoint?: unknown }).endpoint
-        : undefined
-
-    if (typeof endpoint !== "string" || endpoint.length === 0) {
-      return new NextResponse("Invalid endpoint", {
-        status: 400,
-        statusText: "Bad Request",
-      })
+    const data: unknown = await request.json()
+    const endpoint = readEndpoint(data)
+    if (!endpoint) {
+      return badRequest("Invalid endpoint")
     }
 
     await deleteSubscriptionsByEndpoint(endpoint)
@@ -41,23 +27,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true }, { headers: corsHeaders(allowedOrigin) })
   } catch (error) {
     console.error("Unsubscribe error:", error)
-    return new NextResponse("Internal Server Error", {
-      status: 500,
-      statusText: "Internal Server Error",
-    })
+    return serverError()
   }
 }
 
-export async function OPTIONS(req: NextRequest) {
-  const origin = req.headers.get("origin")
-  const allowedOrigin = env.APP_URL
-
-  if (!origin || origin !== allowedOrigin) {
-    return new NextResponse(null, { status: 204 })
-  }
-
-  return new NextResponse(null, {
-    status: 204,
-    headers: corsHeaders(allowedOrigin),
-  })
+export function OPTIONS(request: NextRequest) {
+  return handleOptions(request)
 }
