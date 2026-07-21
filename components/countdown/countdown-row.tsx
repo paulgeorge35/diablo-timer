@@ -51,7 +51,12 @@ export function CountdownRow({
             {countdown.zoneName ? (
               <span className="text-primary/70">{countdown.zoneName}</span>
             ) : null}
-            {countdown.zoneName ? <span aria-hidden="true">·</span> : null}
+            {countdown.zoneName ? (
+              <span
+                aria-hidden="true"
+                className="size-[3px] shrink-0 rounded-full bg-current opacity-60"
+              />
+            ) : null}
             <time dateTime={countdown.eventDateTime}>{countdown.eventTime}</time>
           </span>
           {countdown.secondary ? (
