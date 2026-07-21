@@ -108,6 +108,21 @@
   }
 }
 
+@keyframes pulsate {
+  0% {
+    transform: scale(1);
+    opacity: 0.65;
+  }
+  70% {
+    transform: scale(2.35);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.35);
+    opacity: 0;
+  }
+}
+
 @layer utilities {
   .debug {
     border: 1px solid red;
@@ -140,6 +155,10 @@
   .animate-fade-rise-delay-6 {
     animation: fade-rise 220ms var(--ease-out-quart) 280ms both;
   }
+
+  .animate-pulsate {
+    animation: pulsate 1.8s var(--ease-out-quart) infinite;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -150,6 +169,10 @@
   .animate-fade-rise-delay-4,
   .animate-fade-rise-delay-5,
   .animate-fade-rise-delay-6 {
+    animation: none;
+  }
+
+  .animate-pulsate {
     animation: none;
   }
 }

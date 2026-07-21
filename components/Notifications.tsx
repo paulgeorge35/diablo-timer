@@ -5,6 +5,7 @@ import { useEffect, useId, useRef, useState } from "react"
 
 import { env } from "@/env"
 import { ALL_EVENT_IDS, DEFAULT_NOTIFY_EVENT_IDS, EVENTS, type EventId } from "@/lib/events"
+import { useNotificationPrefs } from "@/lib/notification-prefs"
 
 type Status = "loading" | "unsupported" | "denied" | "unsubscribed" | "subscribed"
 
@@ -31,6 +32,8 @@ export default function Notifications() {
   const titleId = useId()
   const dialogRef = useRef<HTMLDialogElement>(null)
   const busyRef = useRef(false)
+  const setPreferences = useNotificationPrefs((s) => s.setPreferences)
+  const clearPreferences = useNotificationPrefs((s) => s.clearPreferences)
   const [open, setOpen] = useState(false)
   const [status, setStatus] = useState<Status>("loading")
   const [busy, setBusy] = useState(false)
@@ -56,7 +59,10 @@ export default function Notifications() {
       try {
         const subscription = await getPushSubscription()
         if (!subscription) {
-          if (!cancelled) setStatus("unsubscribed")
+          if (!cancelled) {
+            clearPreferences()
+            setStatus("unsubscribed")
+          }
           return
         }
 
@@ -64,10 +70,14 @@ export default function Notifications() {
         if (!cancelled) {
           setSelectedEvents(prefs)
           setSavedEvents(prefs)
+          setPreferences(prefs)
           setStatus("subscribed")
         }
       } catch {
-        if (!cancelled) setStatus("unsubscribed")
+        if (!cancelled) {
+          clearPreferences()
+          setStatus("unsubscribed")
+        }
       }
     }
 
@@ -75,7 +85,7 @@ export default function Notifications() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [clearPreferences, setPreferences])
 
   useEffect(() => {
     const dialog = dialogRef.current
@@ -127,6 +137,7 @@ export default function Notifications() {
     try {
       await subscribe(selectedEvents)
       setSavedEvents(selectedEvents)
+      setPreferences(selectedEvents)
       setStatus("subscribed")
       setOpen(false)
     } catch (err) {
@@ -142,11 +153,13 @@ export default function Notifications() {
     try {
       const subscription = await getPushSubscription()
       if (!subscription) {
+        clearPreferences()
         setStatus("unsubscribed")
         return
       }
       await savePreferences(subscription.endpoint, selectedEvents)
       setSavedEvents(selectedEvents)
+      setPreferences(selectedEvents)
       setOpen(false)
     } catch (err) {
       console.error("Save preferences error:", err)
@@ -161,6 +174,7 @@ export default function Notifications() {
       await unsubscribe()
       setSelectedEvents(DEFAULT_NOTIFY_EVENT_IDS)
       setSavedEvents(DEFAULT_NOTIFY_EVENT_IDS)
+      clearPreferences()
       setStatus("unsubscribed")
       setOpen(false)
     } catch (err) {

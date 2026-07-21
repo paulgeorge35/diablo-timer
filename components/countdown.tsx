@@ -1,9 +1,13 @@
 "use client"
 
-import { type EventId, eventIconUrl, getEventCountdown } from "@/lib/events"
 import { DateTime } from "luxon"
 import Image from "next/image"
 import { useEffect, useState } from "react"
+
+import { type EventId, eventIconUrl, getEventCountdown } from "@/lib/events"
+import { useNotificationPrefs } from "@/lib/notification-prefs"
+
+import { PulsatingDot } from "./pulsating-dot"
 
 type CountdownVariant = "hero" | "row"
 
@@ -41,14 +45,22 @@ export function Countdown({
   showNextOccurrence = false,
 }: CountdownProps) {
   const countdown = useEventCountdown(eventId, index)
+  const notificationsEnabled = useNotificationPrefs(
+    (s) => s.subscribed && s.eventIds.includes(eventId),
+  )
   const displayName = name ?? countdown.name
   const timeClass = countdown.accent === "accent" ? "text-accent" : "text-primary"
 
   if (variant === "row") {
     return (
       <article
-        className={`flex items-center justify-between gap-4 border-b border-border/60 py-3 last:border-b-0 ${className}`}
+        className={`relative flex items-center justify-between gap-4 border-b border-border/60 py-3 last:border-b-0 ${className}`}
       >
+        {notificationsEnabled ? (
+          <span className="absolute top-1/2 -left-4 -translate-y-[calc(50%-2px)]">
+            <PulsatingDot tone="accent" />
+          </span>
+        ) : null}
         <div className="flex min-w-0 items-center gap-3">
           <Image
             src={eventIconUrl(countdown.icon, 32)}
@@ -58,7 +70,7 @@ export function Countdown({
             className="size-8 shrink-0 opacity-80"
           />
           <div className="min-w-0">
-            <p className="font-diablo-light truncate text-sm text-foreground/90">
+            <p className="font-diablo-light flex items-center truncate text-sm text-foreground/90">
               {displayName}
               {countdown.status === "active" ? (
                 <span className="ml-2 text-xs text-accent">Active</span>
@@ -102,7 +114,8 @@ export function Countdown({
         className="mb-4 size-16 opacity-90 sm:size-20"
         priority
       />
-      <p className="font-diablo-light mb-1 text-sm tracking-wide text-muted-foreground sm:text-base">
+      <p className="font-diablo-light mb-1 inline-flex items-center text-sm tracking-wide text-muted-foreground sm:text-base">
+        {notificationsEnabled ? <PulsatingDot tone="accent" className="mr-2" /> : null}
         {displayName}
       </p>
       <time
