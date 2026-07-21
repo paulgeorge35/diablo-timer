@@ -33,17 +33,19 @@ export const EVENTS = {
   legion: {
     name: "Legion",
     icon: "https://cdn.paulgeorge.dev/p/cmrtphyvt000001lkv0pb5d2m/cmrtqchoo000401lk4n2ht3ml",
-    // 00:35 local (UTC+3) / 21:35 UTC — every 25 minutes
-    baseline: "2026-07-20T21:35:00Z",
+    // :50 past the hour UTC cadence — every 25 minutes (:50, :15, :40, :05, …)
+    baseline: "2026-07-20T21:50:00Z",
     intervalMs: 25 * 60 * 1000,
-    activeMs: 4 * 60 * 1000,
+    activeMs: 5 * 60 * 1000,
     kind: "interval",
   },
   realmwalker: {
     name: "Realmwalker",
     icon: "https://cdn.paulgeorge.dev/p/cmrtphyvt000001lkv0pb5d2m/cmrtqchoq000501lk78mxsa11",
+    // Same 25-minute cadence as Legion
     baseline: "2026-07-20T21:50:00Z",
-    intervalMs: 20 * 60 * 1000,
+    intervalMs: 25 * 60 * 1000,
+    activeMs: 2 * 60 * 1000,
     kind: "interval",
   },
   helltide: {
