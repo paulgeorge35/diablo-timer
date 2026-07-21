@@ -13,6 +13,8 @@ type CountdownProps = {
   name?: string
   variant?: CountdownVariant
   className?: string
+  /** Show current and following occurrence clock times (Sanctuary rows). */
+  showNextOccurrence?: boolean
 }
 
 function useEventCountdown(eventId: EventId, index: number) {
@@ -36,11 +38,11 @@ export function Countdown({
   name,
   variant = "hero",
   className = "",
+  showNextOccurrence = false,
 }: CountdownProps) {
   const countdown = useEventCountdown(eventId, index)
   const displayName = name ?? countdown.name
-  const timeClass =
-    countdown.accent === "accent" ? "text-accent" : "text-primary"
+  const timeClass = countdown.accent === "accent" ? "text-accent" : "text-primary"
 
   if (variant === "row") {
     return (
@@ -62,12 +64,22 @@ export function Countdown({
                 <span className="ml-2 text-xs text-accent">Active</span>
               ) : null}
             </p>
-            <time
-              dateTime={countdown.eventDateTime}
-              className="font-diablo-light text-xs text-muted-foreground"
-            >
-              {countdown.eventTime}
-            </time>
+            {showNextOccurrence ? (
+              <p className="font-diablo-light flex items-center gap-1.5 text-xs text-muted-foreground">
+                <time dateTime={countdown.eventDateTime}>{countdown.eventTime}</time>
+                <span aria-hidden="true" className="text-muted-foreground/50">
+                  →
+                </span>
+                <time dateTime={countdown.nextEventDateTime}>{countdown.nextEventTime}</time>
+              </p>
+            ) : (
+              <time
+                dateTime={countdown.eventDateTime}
+                className="font-diablo-light text-xs text-muted-foreground"
+              >
+                {countdown.eventTime}
+              </time>
+            )}
           </div>
         </div>
         <time

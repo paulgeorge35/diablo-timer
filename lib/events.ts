@@ -224,6 +224,8 @@ export type EventCountdown = {
   timeLeft: string
   eventTime: string
   eventDateTime: string | undefined
+  nextEventTime: string
+  nextEventDateTime: string | undefined
   statusLabel: string
   accent: "primary" | "accent"
   status: OccurrenceStatus
@@ -248,22 +250,24 @@ export function getEventCountdown(
       timeLeft: "--:--:--",
       eventTime: "--:--",
       eventDateTime: undefined,
+      nextEventTime: "--:--",
+      nextEventDateTime: undefined,
       statusLabel: "until start",
       accent,
       status: "upcoming",
     }
   }
 
+  const activeMs = event.kind === "interval" && "activeMs" in event ? (event.activeMs ?? 0) : 0
   const state =
     event.kind === "helltide"
       ? getHelltideState(now, index)
-      : getIntervalState(
-          event.baseline,
-          event.intervalMs,
-          now,
-          index,
-          "activeMs" in event ? (event.activeMs ?? 0) : 0,
-        )
+      : getIntervalState(event.baseline, event.intervalMs, now, index, activeMs)
+
+  const nextState =
+    event.kind === "helltide"
+      ? getHelltideState(now, index + 1)
+      : getIntervalState(event.baseline, event.intervalMs, now, index + 1, activeMs)
 
   return {
     name: event.name,
@@ -271,6 +275,8 @@ export function getEventCountdown(
     timeLeft: formatCountdown(now, state.target),
     eventTime: state.start.toLocal().toFormat("h:mma"),
     eventDateTime: state.start.toISO() ?? undefined,
+    nextEventTime: nextState.start.toLocal().toFormat("h:mma"),
+    nextEventDateTime: nextState.start.toISO() ?? undefined,
     statusLabel: state.label,
     accent,
     status: state.status,
