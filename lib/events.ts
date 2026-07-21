@@ -20,6 +20,49 @@ type HelltideEvent = {
   kind: "helltide"
 }
 
+export type WorldBossEvent = "Avarice" | "Ashava" | "Azmodan" | "Wandering Death"
+
+export const WORLD_BOSS_NAMES: readonly WorldBossEvent[] = [
+  "Avarice",
+  "Ashava",
+  "Azmodan",
+  "Wandering Death",
+] as const
+
+export const WORLD_BOSS_IMAGES: Map<WorldBossEvent, string> = new Map([
+  ["Avarice", "https://cdn.paulgeorge.dev/p/cmrtphyvt000001lkv0pb5d2m/cmrv5xfpc000a01lkfv998ucm"],
+  ["Ashava", "https://cdn.paulgeorge.dev/p/cmrtphyvt000001lkv0pb5d2m/cmrv5ui24000901lkua3py5ny"],
+  ["Azmodan", "https://cdn.paulgeorge.dev/p/cmrtphyvt000001lkv0pb5d2m/cmrv626ii000001tf0g9dcko7"],
+  [
+    "Wandering Death",
+    "https://cdn.paulgeorge.dev/p/cmrtphyvt000001lkv0pb5d2m/cmrv5xfpd000b01lkgmd5zshw",
+  ],
+])
+
+/** Two of each boss in order: Avarice, Avarice, Ashava, Ashava, … */
+export const WORLD_BOSS_ROTATION: readonly WorldBossEvent[] = WORLD_BOSS_NAMES.flatMap((name) => [
+  name,
+  name,
+])
+
+/** Baseline spawn (2025-01-16T10:00:00Z) was the second Avarice in the rotation. */
+const WORLD_BOSS_BASELINE_ROTATION_INDEX = 7
+
+export type WorldBossPrimaryZone = "Kehjistan" | "Fractured Peaks" | "Scosglen" | "Dry Steppes"
+
+export type WorldBossSecondaryZone = "Nahantu" | "Skovos"
+
+export type WorldBossZone = WorldBossPrimaryZone | WorldBossSecondaryZone
+
+export const WORLD_BOSS_PRIMARY_ZONES: WorldBossPrimaryZone[] = [
+  "Kehjistan",
+  "Fractured Peaks",
+  "Scosglen",
+  "Dry Steppes",
+]
+
+export const WORLD_BOSS_SECONDARY_ZONES: WorldBossSecondaryZone[] = ["Nahantu", "Skovos"]
+
 export type EventConfig = IntervalEvent | HelltideEvent
 
 export const EVENTS = {
@@ -80,6 +123,37 @@ export function parseEventIds(value: unknown): EventId[] | null {
 
 export function eventIconUrl(icon: string, size: number) {
   return `${icon}?w=${size}&h=${size}`
+}
+
+/** CDN resize for boss portraits — 2× display size for retina, served directly (not via Next image optimizer). */
+export function worldBossImageUrl(boss: WorldBossEvent, displaySizePx: number) {
+  const base = WORLD_BOSS_IMAGES.get(boss)
+  if (!base) return ""
+  const size = Math.ceil(displaySizePx * 2)
+  return `${base}?w=${size}&q=90`
+}
+
+export function getWorldBossSpawnIndex(
+  baselineIso: string,
+  intervalMs: number,
+  start: DateTime,
+): number {
+  const baseline = DateTime.fromISO(baselineIso, { zone: "utc" })
+  return Math.round(start.diff(baseline).as("milliseconds") / intervalMs)
+}
+
+export function getWorldBossForSpawnIndex(spawnIndex: number): WorldBossEvent {
+  const len = WORLD_BOSS_ROTATION.length
+  const index = (((WORLD_BOSS_BASELINE_ROTATION_INDEX + spawnIndex) % len) + len) % len
+  return WORLD_BOSS_ROTATION[index]!
+}
+
+export function getWorldBossAtStart(
+  baselineIso: string,
+  intervalMs: number,
+  start: DateTime,
+): WorldBossEvent {
+  return getWorldBossForSpawnIndex(getWorldBossSpawnIndex(baselineIso, intervalMs, start))
 }
 
 /** Next spawn/start that has not begun yet. */
@@ -221,6 +295,7 @@ export function getHelltideState(now: DateTime, index = 0): OccurrenceState {
 export type EventCountdown = {
   name: string
   icon: string
+  bossName?: WorldBossEvent
   timeLeft: string
   eventTime: string
   eventDateTime: string | undefined
@@ -269,9 +344,15 @@ export function getEventCountdown(
       ? getHelltideState(now, index + 1)
       : getIntervalState(event.baseline, event.intervalMs, now, index + 1, activeMs)
 
+  const bossName =
+    eventId === "world-boss" && event.kind === "interval"
+      ? getWorldBossAtStart(event.baseline, event.intervalMs, state.start)
+      : undefined
+
   return {
     name: event.name,
     icon: event.icon,
+    bossName,
     timeLeft: formatCountdown(now, state.target),
     eventTime: state.start.toLocal().toFormat("h:mma"),
     eventDateTime: state.start.toISO() ?? undefined,

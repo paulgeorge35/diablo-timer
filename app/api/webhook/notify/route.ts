@@ -8,7 +8,13 @@ import {
   getSubscriptionsForEvent,
   parseSubscriptionJson,
 } from "@/lib/db/subscriptions"
-import { ALL_EVENT_IDS, EVENTS, getUpcomingStart, type EventId } from "@/lib/events"
+import {
+  ALL_EVENT_IDS,
+  EVENTS,
+  getUpcomingStart,
+  getWorldBossAtStart,
+  type EventId,
+} from "@/lib/events"
 import { isGoneSubscriptionError, sendPushNotification } from "@/lib/notifications/send"
 
 export const runtime = "nodejs"
@@ -66,10 +72,16 @@ async function notifyEvent(eventId: EventId, now: DateTime) {
   }
 
   const minutesUntil = Math.max(1, Math.ceil(eventAt.diff(now, "minutes").minutes))
-  const name = EVENTS[eventId].name
+  const event = EVENTS[eventId]
+  const bossName =
+    eventId === "world-boss" && event.kind === "interval"
+      ? getWorldBossAtStart(event.baseline, event.intervalMs, eventAt)
+      : undefined
   const payload = {
-    title: `${name} Alert!`,
-    body: `A new ${name} event is starting in ${minutesUntil} minutes!`,
+    title: bossName ? `${bossName} Alert!` : `${event.name} Alert!`,
+    body: bossName
+      ? `${bossName} is spawning in ${minutesUntil} minutes!`
+      : `A new ${event.name} event is starting in ${minutesUntil} minutes!`,
   }
 
   const subscriptions = await getSubscriptionsForEvent(eventId)

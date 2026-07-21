@@ -2,13 +2,7 @@ import { Countdown } from "@/components/countdown"
 import NotificationsClient from "@/components/NotificationsClient"
 import { EVENTS, SANCTUARY_EVENT_IDS } from "@/lib/events"
 
-const SCHEDULE_LABELS = [
-  "Next World Boss",
-  "Following Spawn",
-  "Third Spawn",
-  "Fourth Spawn",
-  "Fifth Spawn",
-] as const
+const WORLD_BOSS_SPAWN_INDICES = [1, 2, 3, 4, 5] as const
 
 const SCHEDULE_DELAYS = [
   "animate-fade-rise-delay-2",
@@ -27,7 +21,7 @@ export default function Home() {
         </h1>
 
         <div className="animate-fade-rise-delay-1 mb-8">
-          <Countdown eventId="world-boss" index={0} name="Upcoming World Boss" variant="hero" />
+          <Countdown eventId="world-boss" index={0} variant="hero" />
         </div>
 
         <p className="animate-fade-rise-delay-1 font-diablo-light mb-6 max-w-md text-sm text-muted-foreground">
@@ -64,12 +58,11 @@ export default function Home() {
           Upcoming World Boss Spawns
         </h2>
         <div>
-          {SCHEDULE_LABELS.map((label, index) => (
+          {WORLD_BOSS_SPAWN_INDICES.map((spawnIndex, index) => (
             <Countdown
-              key={`${index + 1}-world-boss`}
+              key={`${spawnIndex}-world-boss`}
               eventId="world-boss"
-              index={index + 1}
-              name={label}
+              index={spawnIndex}
               variant="row"
               className={SCHEDULE_DELAYS[index]}
             />
