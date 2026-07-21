@@ -60,6 +60,27 @@ export const deleteSubscription = async (id: string) => {
   return prisma.subscription.delete({ where: { id } })
 }
 
+export const deleteSubscriptionsByEndpoint = async (endpoint: string) => {
+  const rows = await prisma.subscription.findMany()
+  const matchingIds = rows
+    .filter((row) => {
+      try {
+        return parseSubscriptionJson(row.subscription).endpoint === endpoint
+      } catch {
+        return false
+      }
+    })
+    .map((row) => row.id)
+
+  if (matchingIds.length === 0) {
+    return { count: 0 }
+  }
+
+  return prisma.subscription.deleteMany({
+    where: { id: { in: matchingIds } },
+  })
+}
+
 export const deleteAllSubscriptions = async () => {
   return prisma.subscription.deleteMany()
 }
