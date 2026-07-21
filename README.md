@@ -7,14 +7,14 @@ A Next.js app that tracks Diablo 4 World Boss (and Sanctuary) event countdowns a
 - Real-time countdown for World Boss, Legion, Helltide, and Realmwalker
 - Web push notifications before World Boss events
 - PostgreSQL subscription storage via Prisma
-- Vercel Cron dispatch (every minute) with VAPID push
+- External webhook dispatch with VAPID push
 
 ## Prerequisites
 
 - Bun package manager
 - PostgreSQL database
 - VAPID keys for web push
-- Vercel Pro (or equivalent) for every-minute cron schedules
+- An external scheduler (cron, Coolify, etc.) that can HTTP-call the notify webhook about once a minute
 
 ## Installation
 
@@ -37,7 +37,7 @@ Required variables:
 - `DATABASE_URL` — Postgres connection string
 - `NEXT_PUBLIC_PUBLIC_KEY` / `PRIVATE_KEY` — VAPID key pair
 - `VAPID_SUBJECT` — contact URI for VAPID (e.g. `mailto:you@example.com`)
-- `CRON_SECRET` — bearer token for `/api/cron/notify`
+- `WEBHOOK_SECRET` — bearer token for `/api/webhook/notify`
 - `NOTIFY_MINUTES_BEFORE_EVENT` — lead time before World Boss (default `10`)
 - `APP_URL` / `NEXT_PUBLIC_APP_URL` — app origin
 
@@ -53,17 +53,27 @@ bun run db:deploy
 bun run dev
 ```
 
-To exercise the cron route locally:
+Trigger the notify webhook:
 
 ```bash
-curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/notify
+curl -X POST -H "Authorization: Bearer $WEBHOOK_SECRET" http://localhost:3000/api/webhook/notify
 ```
+
+## External scheduler
+
+Point your service at production every minute (or every few minutes):
+
+```bash
+curl -X POST -H "Authorization: Bearer $WEBHOOK_SECRET" https://YOUR_DOMAIN/api/webhook/notify
+```
+
+The handler only sends inside the lead-time window and dedupes per World Boss spawn, so frequent polls are safe.
 
 ## Architecture
 
 - Next.js App Router UI and API routes
 - Prisma ORM + Postgres for `subscriptions` and `notification_dispatches`
-- [`/api/cron/notify`](app/api/cron/notify/route.ts) — Vercel Cron every minute; notifies once per World Boss spawn inside the lead-time window
+- [`/api/webhook/notify`](app/api/webhook/notify/route.ts) — GET/POST webhook; notifies once per World Boss spawn inside the lead-time window
 - [`/api/subscription/save`](app/api/subscription/save/route.ts) — stores browser push subscriptions
 - Service worker [`public/service.js`](public/service.js) displays push payloads
 

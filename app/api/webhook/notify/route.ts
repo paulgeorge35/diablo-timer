@@ -19,14 +19,10 @@ const WORLD_BOSS_EVENT_ID = "world-boss" as const
 function isAuthorized(request: Request): boolean {
   const authHeader = request.headers.get("authorization")
   if (!authHeader) return false
-  return authHeader === `Bearer ${env.CRON_SECRET}`
+  return authHeader === `Bearer ${env.WEBHOOK_SECRET}`
 }
 
-export async function GET(request: Request) {
-  if (!isAuthorized(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
+async function handleNotify() {
   const now = DateTime.utc()
   const worldBoss = EVENTS["world-boss"]
   const state = getIntervalState(worldBoss.baseline, worldBoss.intervalMs, now, 0)
@@ -108,4 +104,18 @@ export async function GET(request: Request) {
     failed,
     deleted,
   })
+}
+
+export async function GET(request: Request) {
+  if (!isAuthorized(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+  return handleNotify()
+}
+
+export async function POST(request: Request) {
+  if (!isAuthorized(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+  return handleNotify()
 }
