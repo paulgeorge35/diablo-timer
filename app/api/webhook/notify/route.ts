@@ -5,16 +5,14 @@ import { env } from "@/env"
 import prisma from "@/lib/db"
 import {
   deleteSubscription,
-  getAllSubscriptions,
+  getSubscriptionsForEvent,
   parseSubscriptionJson,
 } from "@/lib/db/subscriptions"
-import { EVENTS, getIntervalState } from "@/lib/events"
+import { ALL_EVENT_IDS, EVENTS, getUpcomingStart, type EventId } from "@/lib/events"
 import { isGoneSubscriptionError, sendPushNotification } from "@/lib/notifications/send"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
-
-const WORLD_BOSS_EVENT_ID = "world-boss" as const
 
 function isAuthorized(request: Request): boolean {
   const authHeader = request.headers.get("authorization")
@@ -22,32 +20,15 @@ function isAuthorized(request: Request): boolean {
   return authHeader === `Bearer ${env.WEBHOOK_SECRET}`
 }
 
-async function handleNotify() {
-  const now = DateTime.utc()
-  const worldBoss = EVENTS["world-boss"]
-  const state = getIntervalState(worldBoss.baseline, worldBoss.intervalMs, now, 0)
-  const eventAt = state.start
-  const notifyFrom = eventAt.minus({ minutes: env.NOTIFY_MINUTES_BEFORE_EVENT })
-
-  if (now < notifyFrom || now >= eventAt) {
-    return NextResponse.json({
-      skipped: true,
-      reason: "outside_notify_window",
-      eventAt: eventAt.toISO(),
-      notifyFrom: notifyFrom.toISO(),
-      now: now.toISO(),
-    })
-  }
-
-  const eventAtDate = eventAt.toJSDate()
-
+async function claimDispatch(eventId: EventId, eventAt: DateTime) {
   try {
     await prisma.notificationDispatch.create({
       data: {
-        eventId: WORLD_BOSS_EVENT_ID,
-        eventAt: eventAtDate,
+        eventId,
+        eventAt: eventAt.toJSDate(),
       },
     })
+    return "claimed" as const
   } catch (error) {
     if (
       typeof error === "object" &&
@@ -55,23 +36,43 @@ async function handleNotify() {
       "code" in error &&
       (error as { code?: string }).code === "P2002"
     ) {
-      return NextResponse.json({
-        skipped: true,
-        reason: "already_dispatched",
-        eventAt: eventAt.toISO(),
-      })
+      return "already_dispatched" as const
     }
     throw error
   }
+}
 
-  const minutesUntil = Math.max(1, Math.ceil(eventAt.diff(now, "minutes").minutes))
-  const payload = {
-    title: "World Boss Alert!",
-    body: `A new World Boss event is starting in ${minutesUntil} minutes!`,
+async function notifyEvent(eventId: EventId, now: DateTime) {
+  const eventAt = getUpcomingStart(eventId, now)
+  const notifyFrom = eventAt.minus({ minutes: env.NOTIFY_MINUTES_BEFORE_EVENT })
+
+  if (now < notifyFrom || now >= eventAt) {
+    return {
+      eventId,
+      skipped: true as const,
+      reason: "outside_notify_window" as const,
+      eventAt: eventAt.toISO(),
+    }
   }
 
-  const subscriptions = await getAllSubscriptions()
+  const claim = await claimDispatch(eventId, eventAt)
+  if (claim === "already_dispatched") {
+    return {
+      eventId,
+      skipped: true as const,
+      reason: "already_dispatched" as const,
+      eventAt: eventAt.toISO(),
+    }
+  }
 
+  const minutesUntil = Math.max(1, Math.ceil(eventAt.diff(now, "minutes").minutes))
+  const name = EVENTS[eventId].name
+  const payload = {
+    title: `${name} Alert!`,
+    body: `A new ${name} event is starting in ${minutesUntil} minutes!`,
+  }
+
+  const subscriptions = await getSubscriptionsForEvent(eventId)
   const results = await Promise.all(
     subscriptions.map(async (row) => {
       try {
@@ -79,7 +80,7 @@ async function handleNotify() {
         await sendPushNotification(subscription, payload)
         return { status: "sent" as const }
       } catch (error) {
-        console.error(`Failed to notify subscription ${row.id}:`, error)
+        console.error(`Failed to notify subscription ${row.id} for ${eventId}:`, error)
 
         if (isGoneSubscriptionError(error)) {
           await deleteSubscription(row.id)
@@ -91,18 +92,27 @@ async function handleNotify() {
     }),
   )
 
-  const sent = results.filter((r) => r.status === "sent").length
-  const deleted = results.filter((r) => r.status === "deleted").length
-  const failed = results.filter((r) => r.status === "failed" || r.status === "deleted").length
-
-  return NextResponse.json({
-    skipped: false,
+  return {
+    eventId,
+    skipped: false as const,
     eventAt: eventAt.toISO(),
     minutesUntil,
     total: subscriptions.length,
-    sent,
-    failed,
-    deleted,
+    sent: results.filter((r) => r.status === "sent").length,
+    failed: results.filter((r) => r.status === "failed" || r.status === "deleted").length,
+    deleted: results.filter((r) => r.status === "deleted").length,
+  }
+}
+
+async function handleNotify() {
+  const now = DateTime.utc()
+  const results = await Promise.all(ALL_EVENT_IDS.map((eventId) => notifyEvent(eventId, now)))
+  const notified = results.filter((r) => !r.skipped)
+
+  return NextResponse.json({
+    skipped: notified.length === 0,
+    now: now.toISO(),
+    results,
   })
 }
 

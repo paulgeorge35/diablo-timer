@@ -57,8 +57,43 @@ export const EVENTS = {
 
 export const SANCTUARY_EVENT_IDS = ["legion", "helltide", "realmwalker"] as const
 
+export const ALL_EVENT_IDS = [
+  "world-boss",
+  "legion",
+  "helltide",
+  "realmwalker",
+] as const satisfies readonly EventId[]
+
+export const DEFAULT_NOTIFY_EVENT_IDS: EventId[] = ["world-boss"]
+
+export function isEventId(value: unknown): value is EventId {
+  return typeof value === "string" && (ALL_EVENT_IDS as readonly string[]).includes(value)
+}
+
+export function parseEventIds(value: unknown): EventId[] | null {
+  if (!Array.isArray(value)) return null
+  const ids = value.filter(isEventId)
+  return ids.length > 0 ? [...new Set(ids)] : null
+}
+
 export function eventIconUrl(icon: string, size: number) {
   return `${icon}?w=${size}&h=${size}`
+}
+
+/** Next spawn/start that has not begun yet. */
+export function getUpcomingStart(eventId: EventId, now: DateTime): DateTime {
+  const event = EVENTS[eventId]
+
+  if (event.kind === "helltide") {
+    const current = getHelltideState(now, 0)
+    return current.status === "upcoming" ? current.start : getHelltideState(now, 1).start
+  }
+
+  const activeMs = "activeMs" in event ? (event.activeMs ?? 0) : 0
+  const current = getIntervalState(event.baseline, event.intervalMs, now, 0, activeMs)
+  return current.status === "upcoming"
+    ? current.start
+    : getIntervalState(event.baseline, event.intervalMs, now, 1, activeMs).start
 }
 
 export type OccurrenceStatus = "active" | "upcoming"

@@ -10,6 +10,7 @@ datasource db {
 model Subscription {
   id           String   @id @default(uuid()) @db.Uuid
   subscription Json
+  eventIds     String[] @default(["world-boss"])
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

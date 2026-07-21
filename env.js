@@ -11,7 +11,7 @@ export const env = createEnv({
     PRIVATE_KEY: z.string(),
     VAPID_SUBJECT: z.string(),
     WEBHOOK_SECRET: z.string(),
-    NOTIFY_MINUTES_BEFORE_EVENT: z.coerce.number().default(10),
+    NOTIFY_MINUTES_BEFORE_EVENT: z.coerce.number().default(5),
     DATABASE_URL: z.string(),
   },
 

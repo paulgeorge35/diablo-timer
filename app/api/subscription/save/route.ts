@@ -1,7 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-import { addSubscription, type PushSubscriptionJson } from "@/lib/db/subscriptions"
 import { env } from "@/env"
+import {
+  type PushSubscriptionJson,
+  upsertSubscription,
+} from "@/lib/db/subscriptions"
+import { DEFAULT_NOTIFY_EVENT_IDS, parseEventIds } from "@/lib/events"
+
+function corsHeaders(origin: string) {
+  return {
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  }
+}
 
 function isPushSubscription(value: unknown): value is PushSubscriptionJson {
   if (!value || typeof value !== "object") return false
@@ -30,24 +42,33 @@ export async function POST(req: NextRequest) {
     }
 
     const data: unknown = await req.json()
-
-    if (!isPushSubscription(data)) {
+    if (!data || typeof data !== "object") {
       return new NextResponse("Invalid subscription data", {
         status: 400,
         statusText: "Bad Request",
       })
     }
 
-    await addSubscription(data)
+    const body = data as {
+      subscription?: unknown
+      eventIds?: unknown
+    }
+
+    // Back-compat: body may be the PushSubscription itself.
+    const subscriptionValue = body.subscription ?? data
+    if (!isPushSubscription(subscriptionValue)) {
+      return new NextResponse("Invalid subscription data", {
+        status: 400,
+        statusText: "Bad Request",
+      })
+    }
+
+    const eventIds = parseEventIds(body.eventIds) ?? DEFAULT_NOTIFY_EVENT_IDS
+    const row = await upsertSubscription(subscriptionValue, eventIds)
 
     return NextResponse.json(
-      { success: true },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": allowedOrigin,
-          "Access-Control-Allow-Methods": "POST",
-        },
-      },
+      { success: true, eventIds: row.eventIds },
+      { headers: corsHeaders(allowedOrigin) },
     )
   } catch (error) {
     console.error("Subscription error:", error)
@@ -68,10 +89,6 @@ export async function OPTIONS(req: NextRequest) {
 
   return new NextResponse(null, {
     status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": allowedOrigin,
-      "Access-Control-Allow-Methods": "POST",
-      "Access-Control-Allow-Headers": "Content-Type",
-    },
+    headers: corsHeaders(allowedOrigin),
   })
 }

@@ -73,8 +73,10 @@ The handler only sends inside the lead-time window and dedupes per World Boss sp
 
 - Next.js App Router UI and API routes
 - Prisma ORM + Postgres for `subscriptions` and `notification_dispatches`
-- [`/api/webhook/notify`](app/api/webhook/notify/route.ts) — GET/POST webhook; notifies once per World Boss spawn inside the lead-time window
-- [`/api/subscription/save`](app/api/subscription/save/route.ts) — stores browser push subscriptions
+- [`/api/webhook/notify`](app/api/webhook/notify/route.ts) — GET/POST webhook; notifies once per event spawn inside the lead-time window for each selected event
+- [`/api/subscription/save`](app/api/subscription/save/route.ts) — stores browser push subscriptions + event preferences
+- [`/api/subscription/preferences`](app/api/subscription/preferences/route.ts) — read/update which events to notify for
+- [`/api/subscription/remove`](app/api/subscription/remove/route.ts) — removes a push subscription
 - Service worker [`public/service.js`](public/service.js) displays push payloads
 
 ## Database scripts
