@@ -1,7 +1,7 @@
 "use client"
 
-import { Bell, BellOff } from "lucide-react"
-import { useEffect, useState } from "react"
+import { Bell, BellOff, Settings2, X } from "lucide-react"
+import { useEffect, useId, useRef, useState } from "react"
 
 import { env } from "@/env"
 import {
@@ -33,10 +33,16 @@ function toggleEvent(selected: EventId[], eventId: EventId): EventId[] {
 }
 
 export default function Notifications() {
+  const titleId = useId()
+  const dialogRef = useRef<HTMLDialogElement>(null)
+  const busyRef = useRef(false)
+  const [open, setOpen] = useState(false)
   const [status, setStatus] = useState<Status>("loading")
   const [busy, setBusy] = useState(false)
   const [selectedEvents, setSelectedEvents] = useState<EventId[]>(DEFAULT_NOTIFY_EVENT_IDS)
   const [savedEvents, setSavedEvents] = useState<EventId[]>(DEFAULT_NOTIFY_EVENT_IDS)
+
+  busyRef.current = busy
 
   useEffect(() => {
     let cancelled = false
@@ -76,6 +82,30 @@ export default function Notifications() {
     }
   }, [])
 
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!dialog) return
+
+    if (open && !dialog.open) {
+      dialog.showModal()
+    } else if (!open && dialog.open) {
+      dialog.close()
+    }
+  }, [open])
+
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!dialog) return
+
+    const onBackdropClick = (event: MouseEvent) => {
+      if (event.target !== dialog || busyRef.current) return
+      setOpen(false)
+    }
+
+    dialog.addEventListener("click", onBackdropClick)
+    return () => dialog.removeEventListener("click", onBackdropClick)
+  }, [status])
+
   if (status === "loading" || status === "unsupported" || status === "denied") {
     return null
   }
@@ -85,6 +115,17 @@ export default function Notifications() {
     (selectedEvents.length !== savedEvents.length ||
       selectedEvents.some((id) => !savedEvents.includes(id)))
 
+  const openDialog = () => {
+    setSelectedEvents(status === "subscribed" ? savedEvents : DEFAULT_NOTIFY_EVENT_IDS)
+    setOpen(true)
+  }
+
+  const closeDialog = () => {
+    if (busy) return
+    setSelectedEvents(status === "subscribed" ? savedEvents : DEFAULT_NOTIFY_EVENT_IDS)
+    setOpen(false)
+  }
+
   const handleSubscribe = async () => {
     if (selectedEvents.length === 0) return
     setBusy(true)
@@ -92,6 +133,7 @@ export default function Notifications() {
       await subscribe(selectedEvents)
       setSavedEvents(selectedEvents)
       setStatus("subscribed")
+      setOpen(false)
     } catch (err) {
       console.error("Subscribe error:", err)
     } finally {
@@ -110,6 +152,7 @@ export default function Notifications() {
       }
       await savePreferences(subscription.endpoint, selectedEvents)
       setSavedEvents(selectedEvents)
+      setOpen(false)
     } catch (err) {
       console.error("Save preferences error:", err)
     } finally {
@@ -124,6 +167,7 @@ export default function Notifications() {
       setSelectedEvents(DEFAULT_NOTIFY_EVENT_IDS)
       setSavedEvents(DEFAULT_NOTIFY_EVENT_IDS)
       setStatus("unsubscribed")
+      setOpen(false)
     } catch (err) {
       console.error("Unsubscribe error:", err)
     } finally {
@@ -132,71 +176,122 @@ export default function Notifications() {
   }
 
   return (
-    <div className="flex w-full max-w-sm flex-col items-center gap-4">
-      <fieldset className="w-full text-left">
-        <legend className="font-diablo-light mb-2 text-center text-xs tracking-wide text-muted-foreground">
-          Notify me for
-        </legend>
-        <div className="grid grid-cols-2 gap-2">
-          {ALL_EVENT_IDS.map((eventId) => {
-            const checked = selectedEvents.includes(eventId)
-            return (
-              <label
-                key={eventId}
-                className={`font-diablo-light flex cursor-pointer items-center gap-2 border px-3 py-2 text-sm transition-colors ${
-                  checked
-                    ? "border-primary/50 bg-primary/10 text-primary"
-                    : "border-border/70 text-muted-foreground hover:border-border"
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  className="size-3.5 accent-[hsl(var(--primary))]"
-                  checked={checked}
-                  disabled={busy}
-                  onChange={() => setSelectedEvents((prev) => toggleEvent(prev, eventId))}
-                />
-                <span>{EVENTS[eventId].name}</span>
-              </label>
-            )
-          })}
-        </div>
-      </fieldset>
+    <>
+      <button
+        type="button"
+        onClick={openDialog}
+        className="font-diablo-light ease inline-flex items-center gap-2 border border-primary/40 bg-primary/10 px-5 py-3 text-sm text-primary transition-[background-color,border-color,transform] duration-150 hover:border-primary/70 hover:bg-primary/20 active:scale-[0.97]"
+      >
+        {status === "subscribed" ? (
+          <>
+            <Settings2 className="size-4 shrink-0" aria-hidden="true" />
+            <span>Manage Notifications</span>
+          </>
+        ) : (
+          <>
+            <Bell className="size-4 shrink-0" aria-hidden="true" />
+            <span>Enable Notifications</span>
+          </>
+        )}
+      </button>
 
-      {status === "subscribed" ? (
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          {preferencesDirty ? (
+      <dialog
+        ref={dialogRef}
+        aria-labelledby={titleId}
+        className="fixed inset-0 m-auto max-h-[min(90vh,36rem)] w-[min(100%-2rem,24rem)] border border-border bg-background p-0 text-foreground shadow-2xl open:flex open:flex-col backdrop:bg-black/70"
+        onCancel={(event) => {
+          if (busy) event.preventDefault()
+        }}
+        onClose={() => {
+          setSelectedEvents(status === "subscribed" ? savedEvents : DEFAULT_NOTIFY_EVENT_IDS)
+          setOpen(false)
+        }}
+      >
+        <div className="flex items-start justify-between gap-3 border-b border-border px-5 py-4">
+          <div>
+            <h2 id={titleId} className="font-diablo-heavy text-lg tracking-wide">
+              {status === "subscribed" ? "Notification Settings" : "Enable Notifications"}
+            </h2>
+            <p className="font-diablo-light mt-1 text-xs text-muted-foreground">
+              Choose which Sanctuary events should alert you.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={closeDialog}
+            disabled={busy}
+            className="text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+            aria-label="Close"
+          >
+            <X className="size-5" />
+          </button>
+        </div>
+
+        <fieldset className="flex-1 overflow-y-auto px-5 py-4">
+          <legend className="font-diablo-light mb-3 text-xs tracking-wide text-muted-foreground">
+            Notify me for
+          </legend>
+          <div className="grid gap-2">
+            {ALL_EVENT_IDS.map((eventId) => {
+              const checked = selectedEvents.includes(eventId)
+              return (
+                <label
+                  key={eventId}
+                  className={`font-diablo-light flex cursor-pointer items-center gap-3 border px-3 py-3 text-sm transition-colors ${
+                    checked
+                      ? "border-primary/50 bg-primary/10 text-primary"
+                      : "border-border/70 text-muted-foreground hover:border-border"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    className="size-3.5 accent-[hsl(var(--primary))]"
+                    checked={checked}
+                    disabled={busy}
+                    onChange={() => setSelectedEvents((prev) => toggleEvent(prev, eventId))}
+                  />
+                  <span>{EVENTS[eventId].name}</span>
+                </label>
+              )
+            })}
+          </div>
+        </fieldset>
+
+        <div className="flex flex-col gap-2 border-t border-border px-5 py-4">
+          {status === "subscribed" ? (
+            <>
+              <button
+                type="button"
+                disabled={busy || selectedEvents.length === 0 || !preferencesDirty}
+                onClick={handleSavePreferences}
+                className="font-diablo-light ease inline-flex w-full items-center justify-center gap-2 border border-primary/40 bg-primary/10 px-5 py-3 text-sm text-primary transition-[background-color,border-color,transform] duration-150 hover:border-primary/70 hover:bg-primary/20 active:scale-[0.97] disabled:opacity-50"
+              >
+                <span>{busy ? "Saving…" : "Save Preferences"}</span>
+              </button>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={handleUnsubscribe}
+                className="font-diablo-light ease inline-flex w-full items-center justify-center gap-2 border border-border px-5 py-3 text-sm text-muted-foreground transition-[background-color,border-color,transform,color] duration-150 hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive active:scale-[0.97] disabled:opacity-50"
+              >
+                <BellOff className="size-4 shrink-0" aria-hidden="true" />
+                <span>{busy ? "Disabling…" : "Disable Notifications"}</span>
+              </button>
+            </>
+          ) : (
             <button
               type="button"
               disabled={busy || selectedEvents.length === 0}
-              onClick={handleSavePreferences}
-              className="font-diablo-light ease inline-flex items-center gap-2 border border-primary/40 bg-primary/10 px-5 py-3 text-sm text-primary transition-[background-color,border-color,transform] duration-150 hover:border-primary/70 hover:bg-primary/20 active:scale-[0.97] disabled:opacity-50"
+              onClick={handleSubscribe}
+              className="font-diablo-light ease inline-flex w-full items-center justify-center gap-2 border border-primary/40 bg-primary/10 px-5 py-3 text-sm text-primary transition-[background-color,border-color,transform] duration-150 hover:border-primary/70 hover:bg-primary/20 active:scale-[0.97] disabled:opacity-50"
             >
-              <span>{busy ? "Saving…" : "Save Preferences"}</span>
+              <Bell className="size-4 shrink-0" aria-hidden="true" />
+              <span>{busy ? "Enabling…" : "Enable Notifications"}</span>
             </button>
-          ) : null}
-          <button
-            type="button"
-            disabled={busy}
-            onClick={handleUnsubscribe}
-            className="font-diablo-light ease inline-flex items-center gap-2 border border-border px-5 py-3 text-sm text-muted-foreground transition-[background-color,border-color,transform,color] duration-150 hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive active:scale-[0.97] disabled:opacity-50"
-          >
-            <BellOff className="size-4 shrink-0" aria-hidden="true" />
-            <span>{busy ? "Disabling…" : "Disable Notifications"}</span>
-          </button>
+          )}
         </div>
-      ) : (
-        <button
-          type="button"
-          disabled={busy || selectedEvents.length === 0}
-          onClick={handleSubscribe}
-          className="font-diablo-light ease inline-flex items-center gap-2 border border-primary/40 bg-primary/10 px-5 py-3 text-sm text-primary transition-[background-color,border-color,transform] duration-150 hover:border-primary/70 hover:bg-primary/20 active:scale-[0.97] disabled:opacity-50"
-        >
-          <Bell className="size-4 shrink-0" aria-hidden="true" />
-          <span>{busy ? "Enabling…" : "Enable Notifications"}</span>
-        </button>
-      )}
-    </div>
+      </dialog>
+    </>
   )
 }
 
@@ -275,7 +370,8 @@ const fetchPreferences = async (endpoint: string): Promise<EventId[]> => {
     Array.isArray((data as { eventIds: unknown }).eventIds)
   ) {
     const ids = (data as { eventIds: unknown[] }).eventIds.filter(
-      (id): id is EventId => typeof id === "string" && (ALL_EVENT_IDS as readonly string[]).includes(id),
+      (id): id is EventId =>
+        typeof id === "string" && (ALL_EVENT_IDS as readonly string[]).includes(id),
     )
     return ids.length > 0 ? ids : DEFAULT_NOTIFY_EVENT_IDS
   }
