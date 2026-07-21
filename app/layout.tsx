@@ -15,21 +15,19 @@ const diabloLight = localFont({
 })
 
 export const metadata: Metadata = {
-  title: "Diablo Sanctuary Timer",
+  title: "Diablo Sanctuary Tracker",
   description:
     "Countdown timers for Diablo 4 World Boss, Legion, Helltide, and Realmwalker — with optional push alerts.",
   openGraph: {
-    title: "Diablo Sanctuary Timer",
-    description:
-      "Track World Boss, Legion, Helltide, and Realmwalker. Never miss the next hunt.",
+    title: "Diablo Sanctuary Tracker",
+    description: "Track World Boss, Legion, Helltide, and Realmwalker. Never miss the next hunt.",
     type: "website",
-    siteName: "Diablo Sanctuary Timer",
+    siteName: "Diablo Sanctuary Tracker",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Diablo Sanctuary Timer",
-    description:
-      "Track World Boss, Legion, Helltide, and Realmwalker. Never miss the next hunt.",
+    title: "Diablo Sanctuary Tracker",
+    description: "Track World Boss, Legion, Helltide, and Realmwalker. Never miss the next hunt.",
   },
 }
 

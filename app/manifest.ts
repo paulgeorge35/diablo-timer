@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next"
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Diablo 4 Timer",
-    short_name: "Diablo 4 Timer",
+    name: "Diablo Sanctuary Tracker",
+    short_name: "Diablo Sanctuary Tracker",
     description: "Countdown to the next World Boss event",
     start_url: "/",
     display: "standalone",
