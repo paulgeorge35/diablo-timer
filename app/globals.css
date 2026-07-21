@@ -74,15 +74,26 @@
     @apply border-border;
   }
 
+  html {
+    scrollbar-gutter: auto;
+  }
+
+  html,
   body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-diablo-light);
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
 
+  html::-webkit-scrollbar,
   body::-webkit-scrollbar {
+    width: 0;
+    height: 0;
     display: none;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-diablo-light);
   }
 }
 
