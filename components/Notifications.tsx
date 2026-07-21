@@ -6,12 +6,15 @@ import { useRouter } from "next/navigation"
 import { env } from "@/env"
 
 const notificationsSupported = () =>
-  "Notification" in window && "serviceWorker" in navigator && "PushManager" in window
+  typeof window !== "undefined" &&
+  "Notification" in window &&
+  "serviceWorker" in navigator &&
+  "PushManager" in window
 
 export default function Notifications() {
   const router = useRouter()
 
-  if (window.Notification.permission === "granted" || !notificationsSupported()) {
+  if (!notificationsSupported() || Notification.permission === "granted") {
     return null
   }
 
@@ -45,7 +48,7 @@ const subscribe = async () => {
   await unregisterServiceWorkers()
 
   const swRegistration = await registerServiceWorker()
-  await window?.Notification.requestPermission()
+  await Notification.requestPermission()
 
   try {
     const options = {

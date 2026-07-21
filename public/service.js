@@ -1,13 +1,11 @@
-self.addEventListener('push', async (event) => {
-    if (event.data) {
-      const eventData = await event.data.json()
-      showLocalNotification(eventData.title, eventData.body, self.registration)
-    }
-  })
-  
-  const showLocalNotification = (title, body, swRegistration) => {
-    swRegistration.showNotification(title, {
-      body,
-      icon: '/icon-192x192.png',
-    })
-  }
+self.addEventListener("push", async (event) => {
+  if (!event.data) return
+
+  const eventData = await event.data.json()
+  event.waitUntil(
+    self.registration.showNotification(eventData.title, {
+      body: eventData.body,
+      icon: "/icon-192x192.png",
+    }),
+  )
+})
