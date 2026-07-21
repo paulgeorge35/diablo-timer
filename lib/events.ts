@@ -79,7 +79,6 @@ export const EVENTS = {
     // :50 past the hour UTC cadence — every 25 minutes (:50, :15, :40, :05, …)
     baseline: "2026-07-20T21:50:00Z",
     intervalMs: 25 * 60 * 1000,
-    activeMs: 5 * 60 * 1000,
     kind: "interval",
   },
   realmwalker: {
@@ -88,7 +87,6 @@ export const EVENTS = {
     // Same 25-minute cadence as Legion
     baseline: "2026-07-20T21:50:00Z",
     intervalMs: 25 * 60 * 1000,
-    activeMs: 2 * 60 * 1000,
     kind: "interval",
   },
   helltide: {
@@ -123,6 +121,10 @@ export function parseEventIds(value: unknown): EventId[] | null {
 
 export function eventIconUrl(icon: string, size: number) {
   return `${icon}?w=${size}&h=${size}`
+}
+
+function intervalActiveMs(event: Extract<EventConfig, { kind: "interval" }>): number {
+  return "activeMs" in event && typeof event.activeMs === "number" ? event.activeMs : 0
 }
 
 /** CDN resize for boss portraits — 2× display size for retina, served directly (not via Next image optimizer). */
@@ -165,7 +167,7 @@ export function getUpcomingStart(eventId: EventId, now: DateTime): DateTime {
     return current.status === "upcoming" ? current.start : getHelltideState(now, 1).start
   }
 
-  const activeMs = "activeMs" in event ? (event.activeMs ?? 0) : 0
+  const activeMs = intervalActiveMs(event)
   const current = getIntervalState(event.baseline, event.intervalMs, now, 0, activeMs)
   return current.status === "upcoming"
     ? current.start
@@ -333,7 +335,7 @@ export function getEventCountdown(
     }
   }
 
-  const activeMs = event.kind === "interval" && "activeMs" in event ? (event.activeMs ?? 0) : 0
+  const activeMs = event.kind === "interval" ? intervalActiveMs(event) : 0
   const state =
     event.kind === "helltide"
       ? getHelltideState(now, index)

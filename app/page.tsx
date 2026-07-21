@@ -46,7 +46,6 @@ export default function Home() {
               index={0}
               name={EVENTS[eventId].name}
               variant="row"
-              showNextOccurrence
               className={SCHEDULE_DELAYS[index]}
             />
           ))}
