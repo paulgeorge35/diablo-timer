@@ -1,19 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-import { env } from "@/env"
 import {
-  type PushSubscriptionJson,
-  upsertSubscription,
-} from "@/lib/db/subscriptions"
+  badRequest,
+  corsHeaders,
+  handleOptions,
+  requireSameOrigin,
+  serverError,
+} from "@/lib/api/http"
+import { type PushSubscriptionJson, upsertSubscription } from "@/lib/db/subscriptions"
 import { DEFAULT_NOTIFY_EVENT_IDS, parseEventIds } from "@/lib/events"
-
-function corsHeaders(origin: string) {
-  return {
-    "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-  }
-}
 
 function isPushSubscription(value: unknown): value is PushSubscriptionJson {
   if (!value || typeof value !== "object") return false
@@ -29,38 +24,23 @@ function isPushSubscription(value: unknown): value is PushSubscriptionJson {
   )
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const origin = req.headers.get("origin")
-    const allowedOrigin = env.APP_URL
+    const auth = requireSameOrigin(request)
+    if (auth instanceof NextResponse) return auth
+    const { allowedOrigin } = auth
 
-    if (!origin || origin !== allowedOrigin) {
-      return new NextResponse("Unauthorized", {
-        status: 401,
-        statusText: "Unauthorized",
-      })
-    }
-
-    const data: unknown = await req.json()
+    const data: unknown = await request.json()
     if (!data || typeof data !== "object") {
-      return new NextResponse("Invalid subscription data", {
-        status: 400,
-        statusText: "Bad Request",
-      })
+      return badRequest("Invalid subscription data")
     }
 
-    const body = data as {
-      subscription?: unknown
-      eventIds?: unknown
-    }
+    const body = data as { subscription?: unknown; eventIds?: unknown }
 
     // Back-compat: body may be the PushSubscription itself.
     const subscriptionValue = body.subscription ?? data
     if (!isPushSubscription(subscriptionValue)) {
-      return new NextResponse("Invalid subscription data", {
-        status: 400,
-        statusText: "Bad Request",
-      })
+      return badRequest("Invalid subscription data")
     }
 
     const eventIds = parseEventIds(body.eventIds) ?? DEFAULT_NOTIFY_EVENT_IDS
@@ -72,23 +52,10 @@ export async function POST(req: NextRequest) {
     )
   } catch (error) {
     console.error("Subscription error:", error)
-    return new NextResponse("Internal Server Error", {
-      status: 500,
-      statusText: "Internal Server Error",
-    })
+    return serverError()
   }
 }
 
-export async function OPTIONS(req: NextRequest) {
-  const origin = req.headers.get("origin")
-  const allowedOrigin = env.APP_URL
-
-  if (!origin || origin !== allowedOrigin) {
-    return new NextResponse(null, { status: 204 })
-  }
-
-  return new NextResponse(null, {
-    status: 204,
-    headers: corsHeaders(allowedOrigin),
-  })
+export function OPTIONS(request: NextRequest) {
+  return handleOptions(request)
 }

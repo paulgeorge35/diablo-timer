@@ -3,6 +3,8 @@ import { join } from "node:path"
 
 import { ImageResponse } from "next/og"
 
+import { BACKGROUND_IMAGE_ID, cdnImageUrl } from "@/lib/cdn"
+
 export const alt =
   "Diablo Sanctuary Tracker — World Boss, Legion, Helltide, and Realmwalker countdowns"
 export const size = {
@@ -11,8 +13,7 @@ export const size = {
 }
 export const contentType = "image/png"
 
-const BACKGROUND =
-  "https://cdn.paulgeorge.dev/p/cmrtphyvt000001lkv0pb5d2m/cmrtr2cnj000801lk1g6tbyoq"
+const BACKGROUND = cdnImageUrl(BACKGROUND_IMAGE_ID)
 
 export default async function Image() {
   const [heavyData, lightData] = await Promise.all([
