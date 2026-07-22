@@ -27,31 +27,29 @@ function getServerAnalytics(): OpenPanel | null {
   return client
 }
 
-/** Fire-and-await server event; never throws into request handlers. */
-export async function trackServer(name: string, properties?: AnalyticsProperties) {
+/** Fire-and-forget server event; never blocks or throws into request handlers. */
+export function trackServer(name: string, properties?: AnalyticsProperties) {
   const op = getServerAnalytics()
   if (!op) return
 
-  try {
-    await op.track(name, properties)
-  } catch (error) {
+  void op.track(name, properties).catch((error: unknown) => {
     console.error(`OpenPanel track failed (${name}):`, error)
-  }
+  })
 }
 
 export function trackSubscriptionSaved(eventIds: EventId[]) {
-  return trackServer("subscription_saved", {
+  trackServer("subscription_saved", {
     event_ids: eventIds,
     event_count: eventIds.length,
   })
 }
 
 export function trackSubscriptionRemoved() {
-  return trackServer("subscription_removed")
+  trackServer("subscription_removed")
 }
 
 export function trackSubscriptionPreferencesUpdated(eventIds: EventId[]) {
-  return trackServer("subscription_preferences_updated", {
+  trackServer("subscription_preferences_updated", {
     event_ids: eventIds,
     event_count: eventIds.length,
   })
@@ -67,7 +65,7 @@ export function trackPushDispatch(payload: {
   deleted: number
   bossName?: string
 }) {
-  return trackServer("push_dispatch", {
+  trackServer("push_dispatch", {
     event_id: payload.eventId,
     event_at: payload.eventAt,
     minutes_until: payload.minutesUntil,

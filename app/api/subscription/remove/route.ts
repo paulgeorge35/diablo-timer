@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     await deleteSubscriptionsByEndpoint(endpoint)
-    await trackSubscriptionRemoved()
+    trackSubscriptionRemoved()
 
     return NextResponse.json({ success: true }, { headers: corsHeaders(allowedOrigin) })
   } catch (error) {

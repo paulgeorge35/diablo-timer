@@ -117,20 +117,18 @@ async function handleNotify() {
   const results = await Promise.all(ALL_EVENT_IDS.map((eventId) => notifyEvent(eventId, now)))
   const notified = results.filter((r) => !r.skipped)
 
-  await Promise.all(
-    notified.map((result) =>
-      trackPushDispatch({
-        eventId: result.eventId,
-        eventAt: result.eventAt,
-        minutesUntil: result.minutesUntil,
-        total: result.total,
-        sent: result.sent,
-        failed: result.failed,
-        deleted: result.deleted,
-        bossName: result.bossName,
-      }),
-    ),
-  )
+  for (const result of notified) {
+    trackPushDispatch({
+      eventId: result.eventId,
+      eventAt: result.eventAt,
+      minutesUntil: result.minutesUntil,
+      total: result.total,
+      sent: result.sent,
+      failed: result.failed,
+      deleted: result.deleted,
+      bossName: result.bossName,
+    })
+  }
 
   return NextResponse.json({
     skipped: notified.length === 0,

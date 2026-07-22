@@ -45,13 +45,10 @@ export async function POST(request: NextRequest) {
     }
 
     const eventIds = parseEventIds(body.eventIds) ?? DEFAULT_NOTIFY_EVENT_IDS
-    const row = await upsertSubscription(subscriptionValue, eventIds)
-    await trackSubscriptionSaved(eventIds)
+    await upsertSubscription(subscriptionValue, eventIds)
+    trackSubscriptionSaved(eventIds)
 
-    return NextResponse.json(
-      { success: true, eventIds: row.eventIds },
-      { headers: corsHeaders(allowedOrigin) },
-    )
+    return NextResponse.json({ success: true, eventIds }, { headers: corsHeaders(allowedOrigin) })
   } catch (error) {
     console.error("Subscription error:", error)
     return serverError()

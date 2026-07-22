@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    await trackSubscriptionPreferencesUpdated(eventIds)
+    trackSubscriptionPreferencesUpdated(eventIds)
 
     return NextResponse.json({ success: true, eventIds }, { headers: corsHeaders(allowedOrigin) })
   } catch (error) {

@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic"
 
 import { env } from "@/env"
+
 const OpenPanelComponent = dynamic(
   () => import("@openpanel/nextjs").then((mod) => mod.OpenPanelComponent),
   { ssr: false },
