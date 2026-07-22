@@ -46,6 +46,8 @@ export function createRootMetadata(): Metadata {
   }
 }
 
+const SHARED_OG_IMAGE = [{ url: "/opengraph-image" }] as const
+
 export function createEventMetadata(eventId: EventId): Metadata {
   const seo = getEventSeo(eventId)
 
@@ -62,11 +64,13 @@ export function createEventMetadata(eventId: EventId): Metadata {
       siteName: SITE_NAME,
       url: seo.path,
       locale: "en_US",
+      images: [...SHARED_OG_IMAGE],
     },
     twitter: {
       card: "summary_large_image",
       title: seo.title,
       description: seo.description,
+      images: [...SHARED_OG_IMAGE],
     },
   }
 }
