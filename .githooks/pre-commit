@@ -1,0 +1,23 @@
+#!/bin/sh
+# Run lint and format checks before committing.
+# Auto-installed via the "prepare" script (git config core.hooksPath .githooks).
+
+set -e
+
+# GUI git clients (e.g. Cursor/VS Code) don't load your shell profile, so bun
+# may not be on PATH. Add common install locations as a fallback.
+export PATH="$HOME/.bun/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+if ! command -v bun >/dev/null 2>&1; then
+  echo "pre-commit: 'bun' not found on PATH. Install Bun (https://bun.sh) or commit with --no-verify." >&2
+  exit 1
+fi
+
+echo "Running pre-commit checks (lint + format)..."
+
+# --bun forces Bun's runtime so the oxlint/oxfmt shims (which have a
+# "#!/usr/bin/env node" shebang) don't depend on node being on PATH.
+bun --bun run lint
+bun --bun run format:check
+
+echo "Pre-commit checks passed."

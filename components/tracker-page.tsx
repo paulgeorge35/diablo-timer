@@ -2,12 +2,7 @@ import { Countdown } from "@/components/countdown"
 import { DocumentTitle } from "@/components/document-title"
 import NotificationsClient from "@/components/NotificationsClient"
 import { JsonLd } from "@/components/seo/json-ld"
-import {
-  EVENTS,
-  eventPath,
-  getSanctuaryRowIds,
-  type EventId,
-} from "@/lib/events"
+import { EVENTS, eventPath, getSanctuaryRowIds, type EventId } from "@/lib/events"
 import { SITE_NAME, buildEventPageJsonLd, buildHomeJsonLd } from "@/lib/seo"
 
 const WORLD_BOSS_SPAWN_INDICES = [1, 2, 3, 4, 5] as const
@@ -34,7 +29,8 @@ type TrackerPageProps = {
 
 export function TrackerPage({ heroEventId }: TrackerPageProps) {
   const sanctuaryRows = getSanctuaryRowIds(heroEventId)
-  const jsonLd = heroEventId === "world-boss" ? buildHomeJsonLd() : buildEventPageJsonLd(heroEventId)
+  const jsonLd =
+    heroEventId === "world-boss" ? buildHomeJsonLd() : buildEventPageJsonLd(heroEventId)
 
   return (
     <div className="relative flex min-h-svh flex-col">
