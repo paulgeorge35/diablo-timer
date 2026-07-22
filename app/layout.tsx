@@ -3,6 +3,7 @@ import localFont from "next/font/local"
 import Image from "next/image"
 
 import { BACKGROUND_IMAGE_ID, cdnImageUrl } from "@/lib/cdn"
+import { createRootMetadata } from "@/lib/seo"
 
 import { NotificationClickTracker } from "./components/notification-click-tracker"
 import { OpenPanelAnalytics } from "./components/openpanel-analytics"
@@ -19,22 +20,7 @@ const diabloLight = localFont({
   variable: "--font-diablo-light",
 })
 
-export const metadata: Metadata = {
-  title: "Diablo Sanctuary Tracker",
-  description:
-    "Countdown timers for Diablo 4 World Boss, Legion, Helltide, and Realmwalker — with optional push alerts.",
-  openGraph: {
-    title: "Diablo Sanctuary Tracker",
-    description: "Track World Boss, Legion, Helltide, and Realmwalker. Never miss the next hunt.",
-    type: "website",
-    siteName: "Diablo Sanctuary Tracker",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Diablo Sanctuary Tracker",
-    description: "Track World Boss, Legion, Helltide, and Realmwalker. Never miss the next hunt.",
-  },
-}
+export const metadata: Metadata = createRootMetadata()
 
 export default function RootLayout({
   children,

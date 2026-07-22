@@ -1,7 +1,9 @@
 import { Countdown } from "@/components/countdown"
 import { DocumentTitle } from "@/components/document-title"
 import NotificationsClient from "@/components/NotificationsClient"
+import { JsonLd } from "@/components/seo/json-ld"
 import { EVENTS, SANCTUARY_EVENT_IDS } from "@/lib/events"
+import { SITE_NAME, buildHomeJsonLd } from "@/lib/seo"
 
 const WORLD_BOSS_SPAWN_INDICES = [1, 2, 3, 4, 5] as const
 
@@ -16,10 +18,11 @@ const SCHEDULE_DELAYS = [
 export default function Home() {
   return (
     <div className="relative flex min-h-svh flex-col">
+      <JsonLd data={buildHomeJsonLd()} />
       <DocumentTitle />
       <section className="flex min-h-svh flex-col items-center justify-center px-6 py-16 text-center">
         <h1 className="animate-fade-rise font-diablo-heavy mb-8 text-4xl tracking-wide text-pretty text-foreground sm:text-5xl md:text-6xl">
-          Diablo Sanctuary Tracker
+          {SITE_NAME}
         </h1>
 
         <div className="animate-fade-rise-delay-1 mb-8">

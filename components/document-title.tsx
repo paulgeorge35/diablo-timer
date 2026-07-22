@@ -2,9 +2,8 @@
 
 import { useEffect } from "react"
 
+import { SITE_NAME } from "@/lib/seo"
 import { useEventCountdown } from "@/lib/use-event-countdown"
-
-const BASE_TITLE = "Diablo Sanctuary Tracker"
 
 export function DocumentTitle() {
   const countdown = useEventCountdown("world-boss", 0)
@@ -20,10 +19,10 @@ export function DocumentTitle() {
       parts.push(countdown.zoneName)
     }
 
-    document.title = parts.length > 1 ? `${parts.join(" · ")} | ${BASE_TITLE}` : BASE_TITLE
+    document.title = parts.length > 1 ? `${parts.join(" · ")} | ${SITE_NAME}` : SITE_NAME
 
     return () => {
-      document.title = BASE_TITLE
+      document.title = SITE_NAME
     }
   }, [countdown.timeLeft, countdown.bossName, countdown.zoneName])
 

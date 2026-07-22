@@ -4,9 +4,9 @@ import { join } from "node:path"
 import { ImageResponse } from "next/og"
 
 import { BACKGROUND_IMAGE_ID, cdnImageUrl } from "@/lib/cdn"
+import { SITE_OG_ALT } from "@/lib/seo"
 
-export const alt =
-  "Diablo Sanctuary Tracker — World Boss, Legion, Helltide, and Realmwalker countdowns"
+export const alt = SITE_OG_ALT
 export const size = {
   width: 1200,
   height: 630,

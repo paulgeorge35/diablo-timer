@@ -1,10 +1,12 @@
 import type { MetadataRoute } from "next"
 
+import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/seo"
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Diablo Sanctuary Tracker",
-    short_name: "Diablo Sanctuary Tracker",
-    description: "Countdown to the next World Boss event",
+    name: SITE_NAME,
+    short_name: SITE_NAME,
+    description: SITE_DESCRIPTION,
     start_url: "/",
     display: "standalone",
     screenshots: [
