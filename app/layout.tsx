@@ -4,6 +4,9 @@ import Image from "next/image"
 
 import { BACKGROUND_IMAGE_ID, cdnImageUrl } from "@/lib/cdn"
 
+import { NotificationClickTracker } from "./components/notification-click-tracker"
+import { OpenPanelAnalytics } from "./components/openpanel-analytics"
+
 import "./globals.css"
 
 const diabloHeavy = localFont({
@@ -56,6 +59,8 @@ export default function RootLayout({
           <div className="absolute inset-0 bg-linear-to-b from-background/70 via-background/55 to-background/90" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,hsl(var(--background)/0.75)_100%)]" />
         </div>
+        <OpenPanelAnalytics />
+        <NotificationClickTracker />
         {children}
       </body>
     </html>

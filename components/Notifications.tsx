@@ -3,6 +3,17 @@
 import { Bell, BellOff, Settings2, X } from "lucide-react"
 import { useEffect, useId, useRef, useState } from "react"
 
+import {
+  trackNotificationsDialogOpened,
+  trackNotificationsPreferencesSaveFailed,
+  trackNotificationsPreferencesSaved,
+  trackNotificationsSessionRestored,
+  trackNotificationsSubscribe,
+  trackNotificationsSubscribeFailed,
+  trackNotificationsUnavailable,
+  trackNotificationsUnsubscribe,
+  trackNotificationsUnsubscribeFailed,
+} from "@/lib/analytics"
 import { ALL_EVENT_IDS, DEFAULT_NOTIFY_EVENT_IDS, EVENTS, type EventId } from "@/lib/events"
 import { useNotificationPrefs } from "@/lib/notification-prefs"
 import {
@@ -42,12 +53,18 @@ export default function Notifications() {
 
     const syncStatus = async () => {
       if (!notificationsSupported()) {
-        if (!cancelled) setStatus("unsupported")
+        if (!cancelled) {
+          setStatus("unsupported")
+          trackNotificationsUnavailable("unsupported")
+        }
         return
       }
 
       if (Notification.permission === "denied") {
-        if (!cancelled) setStatus("denied")
+        if (!cancelled) {
+          setStatus("denied")
+          trackNotificationsUnavailable("denied")
+        }
         return
       }
 
@@ -67,6 +84,7 @@ export default function Notifications() {
           setSavedEvents(prefs)
           setPreferences(prefs)
           setStatus("subscribed")
+          trackNotificationsSessionRestored(prefs)
         }
       } catch {
         if (!cancelled) {
@@ -117,6 +135,7 @@ export default function Notifications() {
 
   const openDialog = () => {
     setSelectedEvents(status === "subscribed" ? savedEvents : DEFAULT_NOTIFY_EVENT_IDS)
+    trackNotificationsDialogOpened(status === "subscribed" ? "subscribed" : "unsubscribed")
     setOpen(true)
   }
 
@@ -135,8 +154,14 @@ export default function Notifications() {
       setPreferences(selectedEvents)
       setStatus("subscribed")
       setOpen(false)
+      trackNotificationsSubscribe(selectedEvents)
     } catch (err) {
+      const reason =
+        err instanceof Error && err.message === "Notification permission not granted"
+          ? "permission_denied"
+          : "error"
       console.error("Subscribe error:", err)
+      trackNotificationsSubscribeFailed(reason)
     } finally {
       setBusy(false)
     }
@@ -145,19 +170,23 @@ export default function Notifications() {
   const handleSavePreferences = async () => {
     if (selectedEvents.length === 0) return
     setBusy(true)
+    const previousEventIds = savedEvents
     try {
       const subscription = await getPushSubscription()
       if (!subscription) {
         clearPreferences()
         setStatus("unsubscribed")
+        trackNotificationsPreferencesSaveFailed("no_subscription")
         return
       }
       await savePreferences(subscription.endpoint, selectedEvents)
       setSavedEvents(selectedEvents)
       setPreferences(selectedEvents)
       setOpen(false)
+      trackNotificationsPreferencesSaved(selectedEvents, previousEventIds)
     } catch (err) {
       console.error("Save preferences error:", err)
+      trackNotificationsPreferencesSaveFailed("error")
     } finally {
       setBusy(false)
     }
@@ -172,8 +201,10 @@ export default function Notifications() {
       clearPreferences()
       setStatus("unsubscribed")
       setOpen(false)
+      trackNotificationsUnsubscribe()
     } catch (err) {
       console.error("Unsubscribe error:", err)
+      trackNotificationsUnsubscribeFailed("error")
     } finally {
       setBusy(false)
     }

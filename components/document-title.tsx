@@ -20,8 +20,7 @@ export function DocumentTitle() {
       parts.push(countdown.zoneName)
     }
 
-    document.title =
-      parts.length > 1 ? `${parts.join(" · ")} | ${BASE_TITLE}` : BASE_TITLE
+    document.title = parts.length > 1 ? `${parts.join(" · ")} | ${BASE_TITLE}` : BASE_TITLE
 
     return () => {
       document.title = BASE_TITLE

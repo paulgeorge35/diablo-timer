@@ -2,6 +2,7 @@ import { DateTime } from "luxon"
 import { NextResponse } from "next/server"
 
 import { env } from "@/env"
+import { trackPushDispatch } from "@/lib/analytics/server"
 import prisma from "@/lib/db"
 import {
   deleteSubscription,
@@ -73,6 +74,9 @@ async function notifyEvent(eventId: EventId, now: DateTime) {
     body: bossName
       ? `${bossName} is spawning in ${minutesUntil} minutes!`
       : `A new ${event.name} event is starting in ${minutesUntil} minutes!`,
+    eventId,
+    ...(bossName ? { bossName } : {}),
+    url: env.APP_URL,
   }
 
   const subscriptions = await getSubscriptionsForEvent(eventId)
@@ -104,6 +108,7 @@ async function notifyEvent(eventId: EventId, now: DateTime) {
     sent: results.filter((r) => r.status === "sent").length,
     failed: results.filter((r) => r.status === "failed" || r.status === "deleted").length,
     deleted: results.filter((r) => r.status === "deleted").length,
+    bossName: bossName ?? undefined,
   }
 }
 
@@ -111,6 +116,21 @@ async function handleNotify() {
   const now = DateTime.utc()
   const results = await Promise.all(ALL_EVENT_IDS.map((eventId) => notifyEvent(eventId, now)))
   const notified = results.filter((r) => !r.skipped)
+
+  await Promise.all(
+    notified.map((result) =>
+      trackPushDispatch({
+        eventId: result.eventId,
+        eventAt: result.eventAt,
+        minutesUntil: result.minutesUntil,
+        total: result.total,
+        sent: result.sent,
+        failed: result.failed,
+        deleted: result.deleted,
+        bossName: result.bossName,
+      }),
+    ),
+  )
 
   return NextResponse.json({
     skipped: notified.length === 0,

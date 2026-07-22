@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 
+import { trackSubscriptionRemoved } from "@/lib/analytics/server"
 import {
   badRequest,
   corsHeaders,
@@ -23,6 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     await deleteSubscriptionsByEndpoint(endpoint)
+    await trackSubscriptionRemoved()
 
     return NextResponse.json({ success: true }, { headers: corsHeaders(allowedOrigin) })
   } catch (error) {

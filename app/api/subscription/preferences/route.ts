@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 
+import { trackSubscriptionPreferencesUpdated } from "@/lib/analytics/server"
 import {
   badRequest,
   corsHeaders,
@@ -59,6 +60,8 @@ export async function POST(request: NextRequest) {
         { status: 404, headers: corsHeaders(allowedOrigin) },
       )
     }
+
+    await trackSubscriptionPreferencesUpdated(eventIds)
 
     return NextResponse.json({ success: true, eventIds }, { headers: corsHeaders(allowedOrigin) })
   } catch (error) {

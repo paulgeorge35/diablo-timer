@@ -13,6 +13,7 @@ export const env = createEnv({
     WEBHOOK_SECRET: z.string(),
     NOTIFY_MINUTES_BEFORE_EVENT: z.coerce.number().default(5),
     DATABASE_URL: z.string(),
+    OPENPANEL_SECRET: z.string().optional(),
   },
 
   /**
@@ -23,6 +24,8 @@ export const env = createEnv({
   client: {
     NEXT_PUBLIC_PUBLIC_KEY: z.string(),
     NEXT_PUBLIC_APP_URL: z.string(),
+    NEXT_PUBLIC_OPENPANEL_CLIENT_ID: z.string().optional(),
+    NEXT_PUBLIC_OPENPANEL_API_URL: z.string().optional(),
   },
 
   /**
@@ -36,8 +39,11 @@ export const env = createEnv({
     WEBHOOK_SECRET: process.env.WEBHOOK_SECRET,
     NOTIFY_MINUTES_BEFORE_EVENT: process.env.NOTIFY_MINUTES_BEFORE_EVENT,
     DATABASE_URL: process.env.DATABASE_URL,
+    OPENPANEL_SECRET: process.env.OPENPANEL_SECRET,
     NEXT_PUBLIC_PUBLIC_KEY: process.env.NEXT_PUBLIC_PUBLIC_KEY,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_OPENPANEL_CLIENT_ID: process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID,
+    NEXT_PUBLIC_OPENPANEL_API_URL: process.env.NEXT_PUBLIC_OPENPANEL_API_URL,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is

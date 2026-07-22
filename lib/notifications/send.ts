@@ -6,6 +6,9 @@ import type { PushSubscriptionJson } from "@/lib/db/subscriptions"
 export type NotificationPayload = {
   title: string
   body: string
+  eventId: string
+  bossName?: string
+  url: string
 }
 
 let vapidConfigured = false

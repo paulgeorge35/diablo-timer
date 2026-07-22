@@ -1,3 +1,4 @@
+// oxlint-disable react/no-array-index-key
 import { cn } from "@/lib/utils"
 
 /** Renders digits in fixed-width cells so the countdown doesn't shift as numbers change. */
