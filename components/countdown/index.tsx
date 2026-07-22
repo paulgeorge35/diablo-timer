@@ -16,6 +16,7 @@ type CountdownProps = {
   name?: string
   variant?: CountdownVariant
   className?: string
+  href?: string
 }
 
 export function Countdown({
@@ -24,6 +25,7 @@ export function Countdown({
   name,
   variant = "hero",
   className = "",
+  href,
 }: CountdownProps) {
   const countdown = useEventCountdown(eventId, index)
   const notificationsEnabled = useNotificationPrefs(
@@ -50,6 +52,7 @@ export function Countdown({
     secondaryImageUrl,
     notificationsEnabled,
     className,
+    href,
   }
 
   return variant === "row" ? <CountdownRow {...viewProps} /> : <CountdownHero {...viewProps} />

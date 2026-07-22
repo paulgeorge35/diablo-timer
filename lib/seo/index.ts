@@ -7,10 +7,17 @@ export {
   SITE_TAGLINE,
   getSiteUrl,
 } from "./site"
-export { createRootMetadata } from "./metadata"
+export { createEventMetadata, createRootMetadata } from "./metadata"
 export {
+  buildEventPageJsonLd,
   buildEventsItemListJsonLd,
   buildHomeJsonLd,
   buildWebApplicationJsonLd,
   buildWebsiteJsonLd,
 } from "./json-ld"
+export {
+  absoluteEventUrl,
+  getEventSeo,
+  getSanctuaryEventSeoList,
+  type EventSeoCopy,
+} from "./events"

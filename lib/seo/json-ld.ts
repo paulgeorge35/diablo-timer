@@ -1,5 +1,6 @@
-import { ALL_EVENT_IDS, EVENTS } from "@/lib/events"
+import { ALL_EVENT_IDS, EVENTS, type EventId } from "@/lib/events"
 
+import { absoluteEventUrl, getEventSeo } from "./events"
 import { SITE_DESCRIPTION, SITE_NAME, getSiteUrl } from "./site"
 
 type JsonLd = Record<string, unknown>
@@ -47,12 +48,38 @@ export function buildEventsItemListJsonLd(): JsonLd {
       "@type": "ListItem",
       position: index + 1,
       name: EVENTS[eventId].name,
-      url: siteUrl,
-      description: `${EVENTS[eventId].name} spawn tracker for Diablo 4`,
+      url: absoluteEventUrl(eventId, siteUrl),
+      description: getEventSeo(eventId).description,
     })),
   }
 }
 
 export function buildHomeJsonLd(): JsonLd[] {
   return [buildWebsiteJsonLd(), buildWebApplicationJsonLd(), buildEventsItemListJsonLd()]
+}
+
+export function buildEventPageJsonLd(eventId: EventId): JsonLd[] {
+  const siteUrl = getSiteUrl()
+  const seo = getEventSeo(eventId)
+  const pageUrl = absoluteEventUrl(eventId, siteUrl)
+
+  return [
+    buildWebsiteJsonLd(),
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: seo.title,
+      url: pageUrl,
+      description: seo.description,
+      isPartOf: {
+        "@type": "WebSite",
+        name: SITE_NAME,
+        url: siteUrl,
+      },
+      about: {
+        "@type": "Thing",
+        name: EVENTS[eventId].name,
+      },
+    },
+  ]
 }

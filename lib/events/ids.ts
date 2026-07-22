@@ -1,7 +1,36 @@
-import { ALL_EVENT_IDS, DEFAULT_NOTIFY_EVENT_IDS, type EventId } from "./config"
+import {
+  ALL_EVENT_IDS,
+  DEFAULT_NOTIFY_EVENT_IDS,
+  SANCTUARY_EVENT_IDS,
+  type EventId,
+} from "./config"
+
+export type SanctuaryEventId = (typeof SANCTUARY_EVENT_IDS)[number]
 
 export function isEventId(value: unknown): value is EventId {
   return typeof value === "string" && (ALL_EVENT_IDS as readonly string[]).includes(value)
+}
+
+export function isSanctuaryEventId(value: unknown): value is SanctuaryEventId {
+  return typeof value === "string" && (SANCTUARY_EVENT_IDS as readonly string[]).includes(value)
+}
+
+/**
+ * Sanctuary section rows for a given hero.
+ * On world-boss home: legion / helltide / realmwalker.
+ * On a sanctuary page: world-boss first, then other sanctuary events excluding the hero.
+ */
+export function getSanctuaryRowIds(heroEventId: EventId): EventId[] {
+  if (heroEventId === "world-boss") {
+    return [...SANCTUARY_EVENT_IDS]
+  }
+
+  return ["world-boss", ...SANCTUARY_EVENT_IDS.filter((id) => id !== heroEventId)]
+}
+
+/** Canonical path for an event page (`/` for world-boss). */
+export function eventPath(eventId: EventId): string {
+  return eventId === "world-boss" ? "/" : `/${eventId}`
 }
 
 /** Filter an arbitrary value to a deduped list of valid event ids, or `null` if none are valid. */

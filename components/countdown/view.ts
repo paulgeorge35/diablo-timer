@@ -9,4 +9,6 @@ export type CountdownViewProps = {
   secondaryImageUrl?: string
   notificationsEnabled: boolean
   className?: string
+  /** When set, the row is wrapped in a link for internal navigation / SEO. */
+  href?: string
 }

@@ -1,4 +1,5 @@
 import Image from "next/image"
+import Link from "next/link"
 
 import { eventIconUrl } from "@/lib/events"
 import { cn } from "@/lib/utils"
@@ -16,14 +17,10 @@ export function CountdownRow({
   secondaryImageUrl,
   notificationsEnabled,
   className = "",
+  href,
 }: CountdownViewProps) {
-  return (
-    <article
-      className={cn(
-        "relative flex items-center justify-between gap-4 border-b border-border/60 py-3 last:border-b-0",
-        className,
-      )}
-    >
+  const content = (
+    <>
       <div className="flex min-w-0 items-center gap-3">
         {bossImageUrl ? (
           <BossAvatar src={bossImageUrl} alt={countdown.bossName ?? ""} size="row" />
@@ -92,6 +89,22 @@ export function CountdownRow({
       >
         <FixedWidthCountdown value={countdown.timeLeft} />
       </time>
-    </article>
+    </>
   )
+
+  const rowClassName = cn(
+    "relative flex items-center justify-between gap-4 border-b border-border/60 py-3 last:border-b-0",
+    href && "transition-colors hover:bg-secondary/30",
+    className,
+  )
+
+  if (href) {
+    return (
+      <Link href={href} className={rowClassName}>
+        {content}
+      </Link>
+    )
+  }
+
+  return <article className={rowClassName}>{content}</article>
 }

@@ -2,11 +2,16 @@
 
 import { useEffect } from "react"
 
+import type { EventId } from "@/lib/events"
 import { SITE_NAME } from "@/lib/seo"
 import { useEventCountdown } from "@/lib/use-event-countdown"
 
-export function DocumentTitle() {
-  const countdown = useEventCountdown("world-boss", 0)
+type DocumentTitleProps = {
+  eventId?: EventId
+}
+
+export function DocumentTitle({ eventId = "world-boss" }: DocumentTitleProps) {
+  const countdown = useEventCountdown(eventId, 0)
 
   useEffect(() => {
     const parts = [countdown.timeLeft]
