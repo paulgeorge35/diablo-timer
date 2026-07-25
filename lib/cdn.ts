@@ -1,4 +1,4 @@
-const CDN_ROOT = "https://cdn.paulgeorge.dev/p/cmrtphyvt000001lkv0pb5d2m"
+const CDN_ROOT = "https://api.cdn.paulgeorge.dev/p/cmrtphyvt000001lkv0pb5d2m"
 
 export type CdnImageParams = {
   w?: number
